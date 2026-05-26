@@ -46,10 +46,11 @@ def skill_detail(skill: str, window: str = "all") -> Path:
             (skill, window),
         ).fetchone()
         if stats is None:
-            stats_dict = {k: 0 for k in (
-                "invocations","positive","negative","neutral","none_reaction",
-                "load_failures","user_typed","model_triggered"
-            )}
+            stats_dict = {
+                "skill": skill, "window": window,
+                "invocations": 0, "positive": 0, "negative": 0, "neutral": 0,
+                "none_reaction": 0, "load_failures": 0, "user_typed": 0, "model_triggered": 0,
+            }
         else:
             stats_dict = dict(stats)
         positive_examples = conn.execute(
