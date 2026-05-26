@@ -35,6 +35,22 @@ def _cmd_run(args):
     c = aggregate.run()
     print(json.dumps({"ingest": a, "invocations_judged": n_inv, "gaps_found": n_gap, "aggregate": c}, indent=2))
 
+def _cmd_improve(args):
+    from puraguin import improve
+    if args.mark:
+        if not args.skill:
+            raise SystemExit("--skill required with --mark")
+        improve.mark_status(args.skill, args.mark)
+        print(json.dumps({"skill": args.skill, "status": args.mark}, indent=2))
+        return
+    if not args.skill:
+        raise SystemExit("--skill required (or use --mark)")
+    try:
+        path = improve.build_evidence_pack(args.skill)
+        print(json.dumps({"skill": args.skill, "evidence_path": str(path)}, indent=2))
+    except improve.InsufficientSampleError as e:
+        raise SystemExit(str(e))
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="puraguin")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -56,6 +72,12 @@ def build_parser() -> argparse.ArgumentParser:
     rn.add_argument("--judge", default=None)
     rn.add_argument("--skip-gaps", action="store_true")
     rn.set_defaults(func=_cmd_run)
+
+    imp = sub.add_parser("improve", help="Phase D: build evidence pack for a skill")
+    imp.add_argument("--skill", required=False)
+    imp.add_argument("--mark", choices=["applied", "rejected"], default=None,
+                     help="mark the most recent evidence row for --skill as applied or rejected")
+    imp.set_defaults(func=_cmd_improve)
 
     return p
 
