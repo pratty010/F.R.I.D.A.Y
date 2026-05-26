@@ -19,6 +19,22 @@ def _cmd_judge(args):
         n_gap = orchestrator.detect_gaps(backend, sample_rate=cfg.gap_sample_rate)
     print(json.dumps({"invocations_judged": n_inv, "gaps_found": n_gap}, indent=2))
 
+def _cmd_aggregate(args):
+    from puraguin import aggregate
+    counts = aggregate.run()
+    print(json.dumps(counts, indent=2))
+
+def _cmd_run(args):
+    from puraguin import ingest, aggregate, config
+    from puraguin.judge import get_backend, orchestrator
+    cfg = config.load().judge
+    backend = get_backend(args.judge or cfg.backend)
+    a = ingest.run()
+    n_inv = orchestrator.judge_invocations(backend)
+    n_gap = 0 if args.skip_gaps else orchestrator.detect_gaps(backend, cfg.gap_sample_rate)
+    c = aggregate.run()
+    print(json.dumps({"ingest": a, "invocations_judged": n_inv, "gaps_found": n_gap, "aggregate": c}, indent=2))
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="puraguin")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -32,6 +48,14 @@ def build_parser() -> argparse.ArgumentParser:
     jud.add_argument("--reanalyze", default=None, help="skill name or 'all'")
     jud.add_argument("--skip-gaps", action="store_true")
     jud.set_defaults(func=_cmd_judge)
+
+    agg = sub.add_parser("aggregate", help="Phase C: recompute per-skill rollups")
+    agg.set_defaults(func=_cmd_aggregate)
+
+    rn = sub.add_parser("run", help="A -> B -> C in sequence")
+    rn.add_argument("--judge", default=None)
+    rn.add_argument("--skip-gaps", action="store_true")
+    rn.set_defaults(func=_cmd_run)
 
     return p
 
