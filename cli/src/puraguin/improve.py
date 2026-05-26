@@ -85,9 +85,10 @@ def build_evidence_pack(skill: str) -> Path:
             "WHERE si.skill = ? ORDER BY si.ts DESC",
             (skill,),
         ).fetchall()
-        if len(rows) < cfg.min_sample_size:
+        judged = sum(1 for r in rows if r["user_reaction"] is not None)
+        if judged < cfg.min_sample_size:
             raise InsufficientSampleError(
-                f"skill '{skill}' has {len(rows)} invocations; need >= {cfg.min_sample_size}"
+                f"skill '{skill}' has {judged} judged invocations; need >= {cfg.min_sample_size}"
             )
         positives = [r for r in rows if r["user_reaction"] == "positive"]
         negatives = [r for r in rows if r["user_reaction"] == "negative"]
