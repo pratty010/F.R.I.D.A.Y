@@ -40,3 +40,24 @@ def test_aggregate_writes_per_skill_rollups(puraguin_home):
     assert br["user_typed"] == 1
     assert br["model_triggered"] == 3
     conn.close()
+
+
+def test_aggregate_unjudged_counts_as_none_reaction(puraguin_home):
+    db.init()
+    conn = db.connect()
+    conn.execute("INSERT INTO sessions(session_id,platform,started_at,last_seen_at) VALUES('s2','claude-code','2026-05-27T10:00:00Z','2026-05-27T11:00:00Z')")
+    # One invocation with no judgment row (unjudged)
+    conn.execute(
+        "INSERT INTO skill_invocations(session_id,ts,skill,tool_use_id,turn_index,trigger,load_success) "
+        "VALUES('s2','2026-05-27T10:00:00Z','diagnose','toolu_uj',0,'model',1)"
+    )
+    conn.commit()
+    conn.close()
+
+    aggregate.run()
+    conn = db.connect()
+    row = conn.execute("SELECT * FROM skill_stats WHERE skill='diagnose' AND window='all'").fetchone()
+    assert row["invocations"] == 1
+    assert row["none_reaction"] == 1  # unjudged (NULL reaction) must land here
+    assert row["positive"] == 0
+    conn.close()
