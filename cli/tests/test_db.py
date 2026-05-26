@@ -13,6 +13,7 @@ def test_init_creates_all_tables(puraguin_home):
         "available_skills_at_session", "skill_stats", "skill_improvements"
     }
     assert expected.issubset(tables)
+    conn.close()
 
 def test_init_is_idempotent(puraguin_home):
     db.init()
@@ -23,3 +24,4 @@ def test_wal_mode_enabled(puraguin_home):
     conn = db.connect()
     mode = conn.execute("PRAGMA journal_mode").fetchone()[0]
     assert mode.lower() == "wal"
+    conn.close()

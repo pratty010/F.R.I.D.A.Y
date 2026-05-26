@@ -50,4 +50,4 @@ def iter_new(platform: str = "claude-code") -> Iterator[dict]:
                     try:
                         yield json.loads(line_str)
                     except json.JSONDecodeError:
-                        break
+                        continue

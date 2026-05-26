@@ -41,14 +41,6 @@ def _apply_failed(conn, ev: dict) -> None:
         (ev.get("stderr", ""), ev.get("tool_use_id")),
     )
 
-def _apply_user_typed(conn, ev: dict) -> None:
-    conn.execute(
-        "UPDATE skill_invocations SET trigger='user-typed' WHERE id = ("
-        "  SELECT id FROM skill_invocations "
-        "  WHERE session_id=? AND skill=? AND trigger='model' "
-        "  ORDER BY ts DESC LIMIT 1)",
-        (ev["session_id"], ev.get("skill", "")),
-    )
 
 def _populate_skills_for_session(conn, session_id: str, transcript_path: str) -> None:
     p = Path(transcript_path)
@@ -75,8 +67,8 @@ def run(platform: str = "claude-code") -> dict:
     conn = db.connect()
     counts = {"events": 0, "sessions": 0, "invocations": 0, "user_typed_marks": 0, "load_results": 0}
     bytes_at_seen: dict[str, int] = {}
-    # Track pending user_typed signals: set of (session_id, skill) tuples seen before invoke
-    pending_user_typed: set[tuple[str, str]] = set()
+    # Accumulate user_typed signals across all files; matched in a post-pass after all files processed.
+    pending_signals: list[tuple[str, str, str]] = []  # (session_id, skill, ts)
     try:
         for f in sorted(events_dir(platform).glob("*.jsonl")):
             offset = events._checkpoint_for(str(f))
@@ -88,10 +80,11 @@ def run(platform: str = "claude-code") -> dict:
                     line = fh.readline()
                     if not line:
                         break
+                    bytes_at_seen[str(f)] = fh.tell()  # always advance checkpoint past this line
                     try:
                         ev = json.loads(line.decode("utf-8").strip())
                     except (json.JSONDecodeError, UnicodeDecodeError):
-                        break
+                        continue
                     counts["events"] += 1
                     et = ev.get("event")
                     if et == "session.start":
@@ -100,28 +93,11 @@ def run(platform: str = "claude-code") -> dict:
                         if ev.get("transcript_path"):
                             _populate_skills_for_session(conn, ev["session_id"], ev["transcript_path"])
                     elif et == "skill.user_typed":
-                        key = (ev["session_id"], ev.get("skill", ""))
-                        pending_user_typed.add(key)
+                        pending_signals.append((ev["session_id"], ev.get("skill", ""), ev["ts"]))
                         counts["user_typed_marks"] += 1
                     elif et == "skill.invoke":
                         idx = _resolve_turn_index(ev.get("transcript_path", ""), ev.get("tool_use_id", ""))
-                        key = (ev["session_id"], ev.get("skill", ""))
-                        if key in pending_user_typed:
-                            # Override trigger to user-typed and consume the signal
-                            pending_user_typed.discard(key)
-                            conn.execute(
-                                "INSERT INTO skill_invocations(session_id, ts, skill, args, tool_use_id, turn_index, trigger) "
-                                "VALUES(?, ?, ?, ?, ?, ?, 'user-typed') "
-                                "ON CONFLICT(tool_use_id) DO UPDATE SET "
-                                "turn_index=COALESCE(excluded.turn_index, skill_invocations.turn_index), "
-                                "trigger='user-typed'",
-                                (
-                                    ev["session_id"], ev["ts"], ev.get("skill", ""), ev.get("args", ""),
-                                    ev.get("tool_use_id"), idx,
-                                ),
-                            )
-                        else:
-                            _upsert_invocation(conn, ev, idx)
+                        _upsert_invocation(conn, ev, idx)
                         counts["invocations"] += 1
                     elif et == "skill.loaded":
                         _apply_loaded(conn, ev)
@@ -129,10 +105,19 @@ def run(platform: str = "claude-code") -> dict:
                     elif et == "skill.load_failed":
                         _apply_failed(conn, ev)
                         counts["load_results"] += 1
-                    bytes_at_seen[str(f)] = fh.tell()
             if str(f) in bytes_at_seen:
                 conn.commit()
                 events.checkpoint(str(f), bytes_at_seen[str(f)])
+        # Post-pass: match user_typed signals to their nearest invocation within 10 seconds.
+        for sid, skill, ts in pending_signals:
+            conn.execute(
+                "UPDATE skill_invocations SET trigger='user-typed' WHERE id = ("
+                "  SELECT id FROM skill_invocations "
+                "  WHERE trigger='model' AND session_id=? AND skill=? "
+                "  AND ABS(julianday(ts) - julianday(?)) * 86400 < 10 "
+                "  ORDER BY ABS(julianday(ts) - julianday(?)) LIMIT 1)",
+                (sid, skill, ts, ts),
+            )
         conn.commit()
     finally:
         conn.close()
