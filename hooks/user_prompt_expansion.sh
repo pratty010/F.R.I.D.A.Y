@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+PAYLOAD="$(cat)"
+TS="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
+
+COMMAND="$(printf '%s' "$PAYLOAD" | jq -r '.command_name // ""')"
+if [ -z "$COMMAND" ]; then
+  exit 0
+fi
+
+LINE="$(printf '%s' "$PAYLOAD" | jq -c --arg ts "$TS" --arg cmd "$COMMAND" '{
+  ts: $ts,
+  platform: "claude-code",
+  event: "skill.user_typed",
+  session_id: .session_id,
+  skill: $cmd,
+  transcript_path: .transcript_path
+}')"
+
+"$SCRIPT_DIR/_emit.sh" "$LINE"
