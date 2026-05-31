@@ -58,3 +58,21 @@ mimo-v2.5 confirmed. The model executed all 3 required tool calls (list director
 **NO-GO:** All 13 subagents get `task: deny`. Specialists dispatch extractor/formatter directly (2-level). Bulk extract/format is inlined when trivial. T2 leaves still ship as specialist-callable, not nested.
 
 Actual verdict: **GO** — The probe dispatched `_t1-canary` (minimax-m2.7, mode:subagent), which in turn dispatched `_t2-canary` (mimo-v2.5, mode:subagent) via the task tool. `T2_REACHED` propagated back to the primary session cleanly. Probe output: `{ "depth2_dispatch": true, "T2_REACHED_found": true, "err": null, "sample": "T2_REACHED\n" }`. Exit 0.
+
+## A4: Cross-vendor history round-trip
+
+| Check | Result |
+|---|---|
+| MiniMax extraction ok | ✓ |
+| Qwen follow-up ok | ✓ |
+| serializer_mandatory | false |
+
+### A4 Branch decision
+
+**serializer_mandatory: false** — Both probes completed successfully:
+- **MiniMax (minimax-m2.7)** completed multi-turn structured extraction task, producing a valid JSON array of the first 3 headings. KEEP-think rule intact.
+- **Qwen (qwen3.6-plus)** completed follow-up reasoning task, correctly counting the array elements and replying DONE. STRIP-think rule intact.
+
+**Actual recommendation:** Phase B7 (`history-serializer.mjs`) is **recommended (preventive)** but not a hard gate for the Phase D pilot. No acute failure detected in cross-vendor transitions. History hygiene is holding under current opencode dispatcher routing.
+
+**Probe details:** Two independent sessions (not actual cross-model handoff — opencode doesn't expose raw history between sessions). MiniMax sample: `["Introduction", "Background", "Methodology"]`. Qwen sample: counted 3 elements and replied DONE. Both errors null. Exit 0.
