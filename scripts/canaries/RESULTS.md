@@ -43,3 +43,18 @@ For each agentic-role model (kimi-k2.6, kimi-k2.5, qwen3.7-max, qwen3.6-plus, gl
 mimo-v2.5 confirmed. The model executed all 3 required tool calls (list directory, read opencode.jsonc, bash echo CR_OK) and replied TOOL_SEQUENCE_COMPLETE. No fallback was needed. Canonical code-runner brain is **opencode-go/mimo-v2.5**.
 
 **Probe note:** The initial run failed with exit 7 because `opencode run` auto-rejects bash tool permissions in non-interactive mode. Re-running with `--dangerously-skip-permissions` produced a clean PASS (exit 0). The probe script has been updated to include this flag. The failure was a harness permission gate, not a model capability failure — mimo-v2.5 attempted all 3 tool calls in the first run as well.
+
+## A3: T2 subagent→subagent depth GO/NO-GO
+
+| Result | Value |
+|---|---|
+| T2_REACHED propagated | ✓ |
+| Verdict | GO |
+
+### A3 Branch decision
+
+**GO:** extractor + formatter ship as T2 leaves. T1 subagents (source-retriever, explorer, data-analyst, fact-checker, synthesizer, designer, technical-writer) get `task: { "*": deny, "extractor": allow }` or `task: { "*": deny, "formatter": allow }` in their Phase C frontmatter. NO specialist names in any subagent task allow-list.
+
+**NO-GO:** All 13 subagents get `task: deny`. Specialists dispatch extractor/formatter directly (2-level). Bulk extract/format is inlined when trivial. T2 leaves still ship as specialist-callable, not nested.
+
+Actual verdict: **GO** — The probe dispatched `_t1-canary` (minimax-m2.7, mode:subagent), which in turn dispatched `_t2-canary` (mimo-v2.5, mode:subagent) via the task tool. `T2_REACHED` propagated back to the primary session cleanly. Probe output: `{ "depth2_dispatch": true, "T2_REACHED_found": true, "err": null, "sample": "T2_REACHED\n" }`. Exit 0.
