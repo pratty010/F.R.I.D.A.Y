@@ -16,9 +16,13 @@ This structure aligns K2's autonomous reasoning with your intent and reduces off
 
 ## Temperature
 
-- **`temperature: 0.6` for all agentic work.**
-- **CRITICAL: The Anthropic-compat API silently multiplies your temperature by 0.6 — do NOT double-apply.** If you set `temperature: 0.6` in the SDK, K2 receives 0.36. Set `temperature: 1.0` if you want K2 to use 0.6 internally.
-- Verify your SDK's behavior on the first call; log the effective temperature from the model response metadata.
+**Native Kimi API:** Set `temperature: 0.6` for all agentic work (deterministic tool orchestration).
+
+**Anthropic-compat SDK (common opencode deployment path):** The SDK silently multiplies your temperature parameter by 0.6. To achieve an effective 0.6, set `temperature: 1.0` in the client.
+
+- Do not set `temperature: 0.6` on the Anthropic-compat path — it arrives as 0.36 (over-constrained).
+- Do not set `temperature: 1.0` on the native API — it arrives as 1.0 (too variable for tool use).
+- **Check which path you are on before the first call.** There is no reliable "effective temperature" echo field in Kimi response metadata — verify by testing tool-call variance on a deterministic prompt.
 
 ## Tool orchestration
 
@@ -60,6 +64,12 @@ K2 provides: `web_search`, `code_runner`, `rethink`, `fetch`, `excel`.
 
 - **k2.6** — stable, long-session variant (supports 4000+ tool calls, up to 13 hours). Use for multi-turn workflows and complex chains.
 - **k2.5** — previous iteration; cheaper but less stable on very long sessions. Use for shorter, backstopped workflows to save cost.
+
+## Escape hatches for stuck states
+
+- **Repeated tool call (same tool, same args):** Inject "Previous attempt returned no new information. Describe what you know so far, then take a different approach."
+- **Over-explaining instead of acting:** Inject "Skip analysis. Execute the next step directly."
+- **Asking clarifying questions mid-task:** Inject "Make a reasonable assumption. State it in one sentence, then continue."
 
 ---
 

@@ -21,6 +21,8 @@ Active when model family is `opencode-go/minimax-m2.5`, `opencode-go/minimax-m2.
 
 **Consequence of stripping:** The next turn has no context for the model's previous reasoning. It will repeat work, contradict itself, or fail tool disambiguation.
 
+> **Cross-family contrast:** Qwen 3.x uses the OPPOSITE rule — it STRIPS `<think>` from history. GLM-5.x also strips its `<thinking>` blocks. MiniMax is the only family that requires KEEP. See `docs/models/qwen.md` and `docs/models/glm.md`.
+
 ## Endpoints
 
 - **OpenAI-compatible endpoint** — use OpenAI SDK as-is.
@@ -37,6 +39,14 @@ Active when model family is `opencode-go/minimax-m2.5`, `opencode-go/minimax-m2.
 - When a MiniMax child agent returns output to a parent agent, **use `sanitizeForParent()` from `scripts/lib/history-serializer.mjs`** to strip the `<think>` blocks from the RETURNED payload.
 - **The child's own internal history still keeps them** — only the payload handed up is sanitized.
 - This prevents the parent from receiving and re-processing the child's internal reasoning.
+
+**Fallback if `history-serializer.mjs` is unavailable:** Manually strip any content matching `<think>[\s\S]*?</think>` from the returned payload before passing to the parent. Never strip from the child's own history array.
+
+## Escape hatches for stuck states
+
+- **Reasoning loop (thinking block grows infinitely):** Inject "Stop internal deliberation. Emit your current best answer now, even if incomplete."
+- **Repeated tool call:** Inject "The previous tool call produced no new result. Try a different tool or a different argument."
+- **Contradicting a previous turn:** Inject "Your last response contradicted your earlier finding. State which answer is correct and why."
 
 ## Version notes
 

@@ -16,6 +16,15 @@ Active when model family is `opencode-go/glm-5`, `opencode-go/glm-5.1`.
 - **Disable thinking when latency-bound** — it adds ~2 seconds per turn. For agentic workflows scanning multiple files or extracting data, keep it off.
 - When enabled, output includes an internal `<thinking>` block (visible in the response); the model's reasoning counts toward context.
 
+## History rule for thinking blocks
+
+When `thinking: {type: "enabled"}`, the model emits a `<thinking>…</thinking>` block in the response.
+
+**STRIP `<thinking>` blocks from history before the next turn.** Do not include them in the messages array on the next request.
+
+- Unlike MiniMax (which requires KEEP), GLM's thinking blocks are internal scratch-pad — they degrade next-turn performance if fed back.
+- Include only the final `content` (the visible answer) in history.
+
 ## Temperature
 
 - **Agentic/coding work: `temperature: 0.6`** for determinism; tool orchestration must be reproducible.

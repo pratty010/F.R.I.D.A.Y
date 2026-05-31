@@ -21,6 +21,8 @@ Active when model family is `opencode-go/qwen3.6-plus`, `opencode-go/qwen3.7-max
 - Remove the `<think>` blocks before sending the next request.
 - Consequence of NOT stripping: bloated context, next-turn reasoning becomes confused and hallucinated.
 
+> **Cross-family contrast:** MiniMax M2.x requires KEEP (the opposite rule). GLM-5.x also strips. If you are routing multiple model families, double-check which rule applies — getting this wrong silently degrades multi-turn performance. See `docs/models/minimax.md`.
+
 ## Sampling parameters
 
 ### With thinking enabled
@@ -45,6 +47,12 @@ Active when model family is `opencode-go/qwen3.6-plus`, `opencode-go/qwen3.7-max
 - **Use Hermes-style tool templates.** AVOID ReAct or stopword-based templates — stopwords emitted mid-reasoning break tool parsing and corrupt the response.
 - Canonical implementation: `Qwen-Agent` (also supports MCP).
 - vLLM flags: `--tool-call-parser hermes --reasoning-parser deepseek_r1`.
+
+## Soft-switch scope
+
+`/think` and `/no_think` work **only in user messages** (the last user message wins). Placing them in the system prompt has no effect — the model silently ignores them. Always put soft-switches at the end of the user turn, not the system prompt.
+
+**ReAct-only environments:** If your deployment framework only supports ReAct-style templates (e.g., legacy LangChain), Qwen 3.x cannot be used safely for tool-calling tasks in that environment. Fallback to a model that supports Hermes-style parsing, or upgrade the template.
 
 ## Context and deployment
 

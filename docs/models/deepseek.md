@@ -53,6 +53,18 @@ Active when model family is `opencode-go/deepseek-v4-pro` [reasoner], `opencode-
   4. `code-runner` executes and returns stdout/stderr.
   5. Reasoner consumes the result in the next turn (as `content` only, no reasoning_content).
 
+**ExecutionPacket schema** (what the reasoner emits for code-runner):
+```json
+{
+  "hypothesis": "string — the root-cause hypothesis being tested",
+  "files": ["path/to/file1", "path/to/file2"],
+  "commands": ["bash command or python snippet to run"],
+  "expected_observations": "what stdout/stderr should show if hypothesis is correct",
+  "stop_criteria": "condition under which no further execution is needed"
+}
+```
+`@code-runner` (or any code-execution subagent) executes the `commands`, captures stdout/stderr, and returns them as plain `content` for the reasoner's next turn.
+
 ---
 
 ## Chat (`deepseek-v4-flash`) — rules
