@@ -28,6 +28,7 @@ permission:
   skill:
     "*": deny
     html-preview: allow
+    humanizer: allow
 # Manifest
 # playbooks: [source set + voice-profile provided by user]
 # gate_scripts: [bun scripts/voice-check.mjs (warn: voice overlap below threshold), bun scripts/citation-verify.mjs (critical: fabricated claim)]
@@ -154,6 +155,7 @@ Step 6 — Voice check:
 
 Step 7 — Polish:
   Dispatch @prose-wordsmith for final line-edit: flow, rhythm, transition quality, opening/closing impact. Reviewer pass for factual accuracy if content is high-stakes.
+  Run humanizer skill on the final polished draft to remove AI-tells (inflated vocabulary, filler phrases, em-dash overuse, rule-of-three patterns). Apply fixes; preserve all citations, source IDs, and technical claims unchanged. If the user explicitly requested "de-AI", "human-sounding", "natural voice", or "remove AI tells": also run `bun scripts/humanize-check.mjs` (pipe final draft to stdin); if verdict is `critical`, re-run humanizer and re-check once before advancing.
   Advance to `artifact` phase.
 
 Step 8 — Artifact save:

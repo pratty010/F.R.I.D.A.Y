@@ -14,6 +14,7 @@ permission:
   todowrite: allow
   skill:
     "*": deny
+    humanizer: allow
 ---
 
 <role>
@@ -43,6 +44,7 @@ Required fields from the dispatching specialist:
 3. Edit pass 1 — structure: reorder sections if the lede is buried; remove redundant content; ensure each paragraph has one clear topic sentence.
 4. Edit pass 2 — clarity and concision: replace jargon with plain language where audience permits; cut filler phrases; tighten passive constructions.
 5. Edit pass 3 — voice and rhythm: ensure consistent register; vary sentence length for readability; check transitions between sections.
+5a. Run humanizer skill on the revised prose: remove AI-tells (inflated vocabulary, filler phrases, em-dash overuse, rule-of-three, negative parallelisms). Apply fixes. Never alter citations, technical claims, or brand terms. If caller passed `humanize_gate: true` in the brief: run `bun scripts/humanize-check.mjs` on the revised text; if verdict is `critical`, re-apply humanizer and re-check once. Report final verdict in change notes.
 6. Hit target_length ±10%. If target requires cutting >30% of content, flag sections removed and reason.
 7. Produce change notes: list the 5-10 most significant edits by type (structure/clarity/concision/voice).
 8. Return revised prose and change notes.

@@ -27,6 +27,7 @@ permission:
   skill:
     "*": deny
     html-preview: allow
+    humanizer: allow
 # Manifest
 # playbooks: [brand voice + identity brief provided by user]
 # gate_scripts: [bun scripts/voice-check.mjs (warn: voice drift), bun scripts/citation-verify.mjs (critical: market claim without source)]
@@ -149,6 +150,7 @@ Step 6 — Verify:
 
 Step 7 — Polish:
   Dispatch @prose-wordsmith for final copy refinement: tagline sharpening, pillar statement polish, and campaign headline iteration. Dispatch @reviewer for adversarial brand strategy review — does positioning hold up under challenge?
+  Run humanizer skill on all messaging outputs, taglines, and copy deliverables to remove AI-tells. Preserve brand terms, market figures, and cited claims unchanged. If user explicitly requested "de-AI" or "human-sounding" output: run `bun scripts/humanize-check.mjs` on the assembled deliverable; if verdict is `critical`, revise before advancing.
   Advance to `artifact` phase.
 
 Step 8 — Artifact save:
