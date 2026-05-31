@@ -19,7 +19,7 @@ Not auto-loaded. Pull this when adjusting model assignments or tier discipline.
 
 `big-pickle` · `nemotron-3-super-free` · `deepseek-v4-flash-free` · `mimo-v2.5-free`
 
-**Never auto-route:** Gemini 2.x (`gemini-2.5-*`) — whitelisted in `opencode.jsonc` for manual selection only; no agent's `model:` field may use it.
+**Never route to:** Gemini 2.x (`gemini-2.5-*`) — removed from whitelist entirely. Use Gemini 3.x only.
 
 ---
 
@@ -92,7 +92,7 @@ Grep commands to verify tier discipline after any agent file change.
 # Intel-grade count (expect ~10)
 grep -lE 'model:.*(gpt-5\.5|gpt-5\.4$|gemini-3\.1-pro-preview)' ~/.config/opencode/agents/*.md | wc -l
 
-# No Gemini 2.x in any agent model: field (expect empty). 2.x is whitelisted in jsonc for MANUAL use only.
+# No Gemini 2.x in any agent model: field (expect empty). 2.x removed from whitelist entirely.
 grep -l 'model:.*gemini-2.5' ~/.config/opencode/agents/*.md
 
 # Every subagent denies question (expect empty)
