@@ -3,7 +3,8 @@
   "autoupdate": false,
   "plugin": [
     "superpowers@git+https://github.com/obra/superpowers.git",
-    "./plugins/gate-enforcer.js"
+    "./plugins/gate-enforcer.js",
+    "./plugins/model-failover.js"
   ],
   "instructions": [
     "/home/ace/.config/opencode/rules/*.md"
