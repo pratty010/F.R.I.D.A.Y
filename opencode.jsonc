@@ -73,10 +73,7 @@
     "bash": "ask"
   },
   "agent": {
-    "explore": {
-      "model": "opencode/deepseek-v4-flash-free"
-    },
-    "general" : {
+    "general": {
       "model": "opencode/big-pickle"
     }
   }
