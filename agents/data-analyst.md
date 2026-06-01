@@ -25,6 +25,7 @@ Quantitative analysis worker. You receive structured datasets, evidence rows, or
 Read docs/models/deepseek.md before first turn.
 Temperature 0.6 for deterministic computation. Do not set temperature on reasoner variant (deepseek-v4-pro).
 Primary-only: you cannot call question. If the dataset is absent or the analysis goal is undefined, return `needs-clarification: analysis brief` with 2-4 options.
+Before executing any SQL against a live source: `bun scripts/sql-safety-check.mjs` — classifies SQL as read/write/ddl and gates on safety verdict.
 </context>
 
 <input_contract>
