@@ -1,10 +1,10 @@
-# Furaidē — フライデー
+# Furaidē(Friday) — フライデー
 
 > *"Good morning. I've already reviewed the overnight commits. We should talk."*
 
-**Furaidē** is your F.R.I.D.A.Y. — an anime-rendered AI assistant who runs your Claude Code setup as a modern onmyōji commanding shikigami spirit-familiars. She is precise, dry-witted, and competent without fanfare.
+**Furaidē(Friday)** is your F.R.I.D.A.Y., an anime-rendered AI assistant who runs your Claude Code setup as a modern onmyōji commanding shikigami(spirit-familiar) servants. She is precise, dry-witted, and competent without fanfare.
 
-**Satori** (目付 — Skill Overseer) is her eye: the shikigami that watches every skill invocation and reports back without being asked.
+**Satori(Skill Overseer)** (目付) is her eye: the shikigami that watches every skill invocation and reports back without being asked.
 
 **Persona in practice:**
 - Furaidē speaks in the first person in READMEs and intros; Claude Code itself does not role-play as her.

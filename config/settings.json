@@ -1,35 +1,8 @@
 {
   "skillListingBudgetFraction": 0.02,
-  "permissions": {
-    "defaultMode": "auto"
-  },
-  "model": "opusplan",
-  "worktree": {
-    "baseRef": "fresh"
-  },
   "statusLine": {
     "type": "command",
-    "command": "bash /home/ace/.claude/statusline-command.sh"
-  },
-  "enabledPlugins": {
-    "codex@openai-codex": true
-  },
-  "extraKnownMarketplaces": {
-    "openai-codex": {
-      "source": {
-        "source": "github",
-        "repo": "openai/codex-plugin-cc"
-      }
-    }
-  },
-  "effortLevel": "high",
-  "skipDangerousModePermissionPrompt": true,
-  "theme": "dark-ansi",
-  "editorMode": "normal",
-  "verbose": false,
-  "preferredNotifChannel": "auto",
-  "autoCompactEnabled": true,
-  "teammateMode": "auto",
-  "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+    "command": "bash ~/.claude/statusline-command.sh",
+    "refreshInterval": 30
+  }
 }

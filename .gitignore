@@ -9,3 +9,7 @@ build/
 .coverage
 htmlcov/
 .DS_Store
+# Satori runtime data — lives in ~/.satori/, not the repo
+cli/.satori/
+# Statusline sidecar written by hooks at runtime
+config/statusline-sidecar.json

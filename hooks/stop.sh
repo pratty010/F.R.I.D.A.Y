@@ -23,3 +23,16 @@ LINE="$(printf '%s' "$PAYLOAD" | jq -c --arg ts "$TS" --arg ev "$OUT_EVENT" '{
 }')"
 
 "$SCRIPT_DIR/_emit.sh" "$LINE"
+
+# Write permission_mode to statusline sidecar so the statusline can display it.
+# The sidecar is a simple JSON file merged by statusline-command.sh at render time.
+SATORI_HOME="${SATORI_HOME:-$HOME/.satori}"
+SIDECAR="$SATORI_HOME/statusline-sidecar.json"
+mkdir -p "$SATORI_HOME"
+PMODE="$(printf '%s' "$PAYLOAD" | jq -r '.permission_mode // empty')"
+if [ -n "$PMODE" ]; then
+  EXISTING_SKILL="$(jq -r '.last_skill // empty' "$SIDECAR" 2>/dev/null || true)"
+  jq -nc --arg pm "$PMODE" --arg ls "${EXISTING_SKILL}" \
+    '{permission_mode: $pm, last_skill: (if $ls == "" then null else $ls end)}' \
+    > "$SIDECAR"
+fi
