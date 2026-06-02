@@ -4,10 +4,10 @@
   "lsp": true,
   "plugin": [
     "superpowers@git+https://github.com/obra/superpowers.git",
-    "./plugins/gate-enforcer.js",
-    "./plugins/delivery-gate.js",
-    "./plugins/security-patterns.js",
-    "./plugins/model-failover.js"
+    "./plugins/nio.js",
+    "./plugins/nurikabe.js",
+    "./plugins/komainu.js",
+    "./plugins/migawari.js"
   ],
   "instructions": [
     "/home/ace/.config/opencode/rules/*.md"
@@ -73,7 +73,7 @@
     "bash": "ask"
   },
   "agent": {
-    "general": {
+    "tanuki": {
       "model": "opencode/big-pickle"
     }
   }
