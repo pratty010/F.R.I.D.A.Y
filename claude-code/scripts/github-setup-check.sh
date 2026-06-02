@@ -47,7 +47,7 @@ checks[gh_signing_key]=$(
   if [[ -z "$local_key" || ! -f "$local_key" ]]; then
     echo "✗"
   else
-    local_pubkey=$(cat "$local_key")
+    local_pubkey=$(cat "$local_key" | xargs)
     github_keys=$(gh api user/ssh_signing_keys --jq '.[].key' 2>/dev/null || echo "")
     [[ "$github_keys" == *"$local_pubkey"* ]] && echo "✓" || echo "✗"
   fi
