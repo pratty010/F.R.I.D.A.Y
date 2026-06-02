@@ -40,7 +40,6 @@ jobs:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
           restore-keys: ${{ runner.os }}-bun-
-      - run: cd opencode && bun install --frozen-lockfile
       - run: cd opencode && bun test scripts/tests/
 
   test-claude-code:
