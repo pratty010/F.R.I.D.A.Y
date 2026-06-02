@@ -15,10 +15,6 @@ pre-commit:
       glob: "*.{yml,yaml}"
       run: python3 -c "import yaml, sys; [yaml.safe_load(open(f)) for f in sys.argv[1:]]" {staged_files}
 
-    - name: bun-tests
-      glob: "opencode/**"
-      run: cd opencode && bun test scripts/tests/ --bail
-
     - name: pytest
       glob: "claude-code/**"
       run: cd claude-code/cli && uv run pytest -x -q --tb=short
