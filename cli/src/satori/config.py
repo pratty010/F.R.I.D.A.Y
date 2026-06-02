@@ -1,6 +1,6 @@
 import tomllib
 from dataclasses import dataclass, field
-from puraguin.paths import config_file
+from satori.paths import config_file
 
 @dataclass
 class JudgeConfig:

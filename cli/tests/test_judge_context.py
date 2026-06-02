@@ -1,10 +1,10 @@
 from pathlib import Path
-from puraguin.judge import context as ctxmod
-from puraguin import db
+from satori.judge import context as ctxmod
+from satori import db
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
-def test_build_context_around_invocation(puraguin_home):
+def test_build_context_around_invocation(satori_home):
     db.init()
     transcript_path = str(FIXTURES / "transcript_simple.jsonl")
     conn = db.connect()

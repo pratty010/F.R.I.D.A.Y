@@ -1,10 +1,10 @@
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from puraguin import db, transcript
-from puraguin.judge import context
-from puraguin.judge.interface import JudgeBackend, AvailableSkillCtx
-from puraguin import config as config_mod
+from satori import db, transcript
+from satori.judge import context
+from satori.judge.interface import JudgeBackend, AvailableSkillCtx
+from satori import config as config_mod
 
 def _unjudged_invocations(conn) -> list[int]:
     rows = conn.execute(
@@ -50,7 +50,7 @@ def judge_invocations(backend: JudgeBackend, reanalyze_skill: str | None = None)
                 conn.commit()
                 judged += 1
             except Exception as e:
-                print(f"[puraguin] judge skipped {inv_id}: {e}", file=sys.stderr)
+                print(f"[satori] judge skipped {inv_id}: {e}", file=sys.stderr)
                 continue
     finally:
         conn.close()

@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "puraguin"
+name = "satori"
 version = "0.1.0"
 description = "Skill-usage observability for Claude Code"
 requires-python = ">=3.11"
@@ -16,7 +16,13 @@ dependencies = [
 dev = ["pytest>=8.0", "pytest-cov>=5.0"]
 
 [project.scripts]
-puraguin = "puraguin.cli:main"
+satori = "satori.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+]

@@ -1,9 +1,9 @@
 import json
 import os
 from anthropic import Anthropic
-from puraguin import config
-from puraguin.judge.interface import InvocationContext, Judgment, Gap, AvailableSkillCtx
-from puraguin.judge import prompts
+from satori import config
+from satori.judge.interface import InvocationContext, Judgment, Gap, AvailableSkillCtx
+from satori.judge import prompts
 
 class AnthropicBackend:
     def __init__(self):

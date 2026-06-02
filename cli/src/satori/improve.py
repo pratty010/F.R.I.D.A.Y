@@ -1,10 +1,10 @@
-# cli/src/puraguin/improve.py
+# cli/src/satori/improve.py
 import json
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
-from puraguin import db, config
-from puraguin.paths import evidence_dir
+from satori import db, config
+from satori.paths import evidence_dir
 
 class InsufficientSampleError(Exception):
     pass
@@ -34,8 +34,8 @@ _TEMPLATE = """# Evidence pack — `{skill}` ({date})
 Pass this evidence pack to `Skill(skill-creator)` (relevant parts) or `Skill(writing-skills)` to revise the SKILL.md description. After applying or rejecting the rewrite, run:
 
 ```
-puraguin improve --mark {skill} applied
-puraguin improve --mark {skill} rejected
+satori improve --mark {skill} applied
+satori improve --mark {skill} rejected
 ```
 """
 

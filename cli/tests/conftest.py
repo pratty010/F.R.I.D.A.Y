@@ -3,8 +3,8 @@ import pytest
 from pathlib import Path
 
 @pytest.fixture
-def puraguin_home(tmp_path, monkeypatch):
-    home = tmp_path / "puraguin"
+def satori_home(tmp_path, monkeypatch):
+    home = tmp_path / "satori"
     home.mkdir()
-    monkeypatch.setenv("PURAGUIN_HOME", str(home))
+    monkeypatch.setenv("SATORI_HOME", str(home))
     return home

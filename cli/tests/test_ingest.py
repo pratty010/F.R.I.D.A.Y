@@ -1,18 +1,18 @@
 import json
 from pathlib import Path
-from puraguin import ingest, db, paths
+from satori import ingest, db, paths
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
-def _write_events(puraguin_home, lines):
-    f = puraguin_home / "events" / "claude-code" / "2026-05-27.jsonl"
+def _write_events(satori_home, lines):
+    f = satori_home / "events" / "claude-code" / "2026-05-27.jsonl"
     f.parent.mkdir(parents=True, exist_ok=True)
     f.write_text("\n".join(json.dumps(l) for l in lines) + "\n")
 
-def test_ingest_creates_session_and_invocation(puraguin_home):
+def test_ingest_creates_session_and_invocation(satori_home):
     db.init()
     transcript_path = str(FIXTURES / "transcript_simple.jsonl")
-    _write_events(puraguin_home, [
+    _write_events(satori_home, [
         {"ts":"2026-05-27T10:00:00.000Z","platform":"claude-code","event":"session.start",
          "session_id":"s1","cwd":"/tmp","model":"claude-opus-4-7","source":"startup",
          "transcript_path":transcript_path},
@@ -32,10 +32,10 @@ def test_ingest_creates_session_and_invocation(puraguin_home):
     assert inv["load_duration_ms"] == 420
     assert inv["turn_index"] == 3
 
-def test_ingest_is_idempotent(puraguin_home):
+def test_ingest_is_idempotent(satori_home):
     db.init()
     transcript_path = str(FIXTURES / "transcript_simple.jsonl")
-    _write_events(puraguin_home, [
+    _write_events(satori_home, [
         {"ts":"2026-05-27T10:00:00.000Z","platform":"claude-code","event":"session.start",
          "session_id":"s1","cwd":"/tmp","model":"claude-opus-4-7","source":"startup",
          "transcript_path":transcript_path},
@@ -46,10 +46,10 @@ def test_ingest_is_idempotent(puraguin_home):
     count = conn.execute("SELECT COUNT(*) AS c FROM sessions").fetchone()["c"]
     assert count == 1
 
-def test_ingest_marks_user_typed_trigger(puraguin_home):
+def test_ingest_marks_user_typed_trigger(satori_home):
     db.init()
     transcript_path = str(FIXTURES / "transcript_simple.jsonl")
-    _write_events(puraguin_home, [
+    _write_events(satori_home, [
         {"ts":"2026-05-27T10:00:00.000Z","platform":"claude-code","event":"session.start",
          "session_id":"s1","cwd":"/tmp","model":"claude-opus-4-7","source":"startup",
          "transcript_path":transcript_path},

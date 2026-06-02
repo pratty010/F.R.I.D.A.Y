@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 def home() -> Path:
-    return Path(os.environ.get("PURAGUIN_HOME", str(Path.home() / ".puraguin")))
+    return Path(os.environ.get("SATORI_HOME", str(Path.home() / ".satori")))
 
 def events_dir(platform: str = "claude-code") -> Path:
     p = home() / "events" / platform

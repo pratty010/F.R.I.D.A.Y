@@ -2,8 +2,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator
-from puraguin import db
-from puraguin.paths import events_dir
+from satori import db
+from satori.paths import events_dir
 
 def _checkpoint_for(path: str) -> int:
     conn = db.connect()

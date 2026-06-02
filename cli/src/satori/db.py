@@ -1,5 +1,5 @@
 import sqlite3
-from puraguin.paths import state_db
+from satori.paths import state_db
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS source_files (

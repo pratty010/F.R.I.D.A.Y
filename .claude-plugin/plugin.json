@@ -1,9 +1,10 @@
 {
-  "name": "puraguin",
+  "name": "satori",
+  "displayName": "Satori (Skill Overseer)",
   "version": "0.1.0",
-  "description": "Skill-usage observability: capture skill invocations and analyze their effectiveness offline.",
+  "description": "Furaidē's eye on your skills — watches which fire and judges their effectiveness offline.",
   "author": {
-    "name": "puraguin",
-    "url": "https://github.com/pratty010/puraguin"
+    "name": "pratty010",
+    "url": "https://github.com/pratty010/claude-code"
   }
 }

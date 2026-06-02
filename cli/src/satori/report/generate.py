@@ -1,9 +1,9 @@
-# cli/src/puraguin/report/generate.py
+# cli/src/satori/report/generate.py
 from datetime import datetime, timezone
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from puraguin import db
-from puraguin.paths import reports_dir
+from satori import db
+from satori.paths import reports_dir
 
 _TEMPLATE_DIR = Path(__file__).parent / "templates"
 _env = Environment(loader=FileSystemLoader(str(_TEMPLATE_DIR)),

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Atomic JSONL append. Args: $1 = JSON object string (single line).
-# Output path: $PURAGUIN_HOME/events/claude-code/YYYY-MM-DD.jsonl
+# Output path: $SATORI_HOME/events/claude-code/YYYY-MM-DD.jsonl
 set -euo pipefail
 
-PURAGUIN_HOME="${PURAGUIN_HOME:-$HOME/.puraguin}"
-OUT_DIR="$PURAGUIN_HOME/events/claude-code"
+SATORI_HOME="${SATORI_HOME:-$HOME/.satori}"
+OUT_DIR="$SATORI_HOME/events/claude-code"
 mkdir -p "$OUT_DIR"
 
 DATE="$(date -u +%Y-%m-%d)"

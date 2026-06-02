@@ -1,12 +1,12 @@
-# cli/src/puraguin/report/server.py
+# cli/src/satori/report/server.py
 import os
 import subprocess
 import sys
 import time
 import urllib.request
-from puraguin.paths import reports_dir
+from satori.paths import reports_dir
 
-PORT = int(os.environ.get("PURAGUIN_REPORT_PORT", "8765"))
+PORT = int(os.environ.get("SATORI_REPORT_PORT", "8765"))
 
 def _pid_file() -> str:
     return str(reports_dir() / ".server.pid")

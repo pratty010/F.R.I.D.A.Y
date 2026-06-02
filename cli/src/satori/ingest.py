@@ -1,8 +1,8 @@
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from puraguin import db, events, transcript
-from puraguin.paths import events_dir
+from satori import db, events, transcript
+from satori.paths import events_dir
 
 def _upsert_session(conn, ev: dict) -> None:
     conn.execute(

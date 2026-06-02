@@ -1,7 +1,7 @@
 import json
 import subprocess
-from puraguin.judge.interface import InvocationContext, Judgment, Gap, AvailableSkillCtx
-from puraguin.judge import prompts
+from satori.judge.interface import InvocationContext, Judgment, Gap, AvailableSkillCtx
+from satori.judge import prompts
 
 CODEX_BIN = "codex"
 

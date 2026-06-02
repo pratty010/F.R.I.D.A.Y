@@ -38,9 +38,9 @@ class JudgeBackend(Protocol):
 
 def get_backend(name: str) -> JudgeBackend:
     if name == "anthropic":
-        from puraguin.judge.anthropic_backend import AnthropicBackend
+        from satori.judge.anthropic_backend import AnthropicBackend
         return AnthropicBackend()
     if name == "codex":
-        from puraguin.judge.codex_backend import CodexBackend
+        from satori.judge.codex_backend import CodexBackend
         return CodexBackend()
     raise ValueError(f"unknown judge backend: {name}")

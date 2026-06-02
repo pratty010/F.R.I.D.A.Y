@@ -1,6 +1,6 @@
 from pathlib import Path
-from puraguin import db, transcript
-from puraguin.judge.interface import InvocationContext
+from satori import db, transcript
+from satori.judge.interface import InvocationContext
 
 def build(invocation_id: int, before: int = 10, after: int = 10) -> InvocationContext:
     conn = db.connect()

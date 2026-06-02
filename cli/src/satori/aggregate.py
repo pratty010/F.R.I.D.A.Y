@@ -1,6 +1,6 @@
-# cli/src/puraguin/aggregate.py
+# cli/src/satori/aggregate.py
 from datetime import datetime, timezone, timedelta
-from puraguin import db
+from satori import db
 
 WINDOWS = {"all": None, "30d": 30, "7d": 7}
 

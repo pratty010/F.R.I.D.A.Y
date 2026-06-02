@@ -1,4 +1,4 @@
-from puraguin.judge.interface import InvocationContext, AvailableSkillCtx
+from satori.judge.interface import InvocationContext, AvailableSkillCtx
 
 CLASSIFY_SYSTEM = """You are an analyst evaluating whether a Claude Code skill invocation was helpful. \
 Given the conversation context around the invocation, classify the outcome strictly. \

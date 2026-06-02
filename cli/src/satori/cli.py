@@ -3,13 +3,13 @@ import json
 import sys
 
 def _cmd_ingest(args):
-    from puraguin import ingest
+    from satori import ingest
     counts = ingest.run(platform=args.platform)
     print(json.dumps(counts, indent=2))
 
 def _cmd_judge(args):
-    from puraguin.judge import get_backend, orchestrator
-    from puraguin import config
+    from satori.judge import get_backend, orchestrator
+    from satori import config
     cfg = config.load().judge
     backend_name = args.judge or cfg.backend
     backend = get_backend(backend_name)
@@ -20,13 +20,13 @@ def _cmd_judge(args):
     print(json.dumps({"invocations_judged": n_inv, "gaps_found": n_gap}, indent=2))
 
 def _cmd_aggregate(args):
-    from puraguin import aggregate
+    from satori import aggregate
     counts = aggregate.run()
     print(json.dumps(counts, indent=2))
 
 def _cmd_run(args):
-    from puraguin import ingest, aggregate, config
-    from puraguin.judge import get_backend, orchestrator
+    from satori import ingest, aggregate, config
+    from satori.judge import get_backend, orchestrator
     cfg = config.load().judge
     backend = get_backend(args.judge or cfg.backend)
     a = ingest.run()
@@ -36,7 +36,7 @@ def _cmd_run(args):
     print(json.dumps({"ingest": a, "invocations_judged": n_inv, "gaps_found": n_gap, "aggregate": c}, indent=2))
 
 def _cmd_report(args):
-    from puraguin.report import generate, server
+    from satori.report import generate, server
     if not args.overview and not args.skill:
         raise SystemExit("specify --overview or --skill X")
     paths = []
@@ -53,7 +53,7 @@ def _cmd_report(args):
     }, indent=2))
 
 def _cmd_improve(args):
-    from puraguin import improve
+    from satori import improve
     if args.mark:
         if not args.skill:
             raise SystemExit("--skill required with --mark")
@@ -69,7 +69,7 @@ def _cmd_improve(args):
         raise SystemExit(str(e))
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="puraguin")
+    p = argparse.ArgumentParser(prog="satori")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     ing = sub.add_parser("ingest", help="Phase A: ingest new events into state.db")

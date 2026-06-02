@@ -1,5 +1,5 @@
 from pathlib import Path
-from puraguin import transcript
+from satori import transcript
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
