@@ -2,7 +2,7 @@
 
 Furaidē's [pi.dev](https://pi.dev) extension package. Web-RAG tools, `/usage` analytics, TUI widgets, themes, and GSD skills.
 
-Part of the [F.R.I.D.A.Y.](https://github.com/pratty010/F.R.I.D.A.Y) monorepo.
+Part of the [F.R.I.D.A.Y.](https://github.com/pratty010/Furaide) monorepo.
 
 ---
 
@@ -42,8 +42,8 @@ All missing keys/binaries degrade gracefully with a clear error rather than cras
 ### One-command (recommended)
 
 ```bash
-git clone https://github.com/pratty010/F.R.I.D.A.Y.git ~/F.R.I.D.A.Y
-bash ~/F.R.I.D.A.Y/pi-agent/scripts/install-pi-agent.sh
+git clone https://github.com/pratty010/Furaide.git ~/Furaidē
+bash ~/Furaidē/pi-agent/scripts/install-pi-agent.sh
 ```
 
 Prerequisities: [bun](https://bun.sh) + [Pi CLI](https://pi.dev) v0.72.1+.
@@ -51,13 +51,13 @@ Prerequisities: [bun](https://bun.sh) + [Pi CLI](https://pi.dev) v0.72.1+.
 ### Or from git (once published to npm)
 
 ```bash
-pi install git:github.com/pratty010/F.R.I.D.A.Y
+pi install git:github.com/pratty010/Furaide
 ```
 
 ### Manual
 
 ```bash
-cd ~/F.R.I.D.A.Y/pi-agent
+cd ~/Furaidē/pi-agent
 bun install
 pi install .
 ```

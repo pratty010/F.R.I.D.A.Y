@@ -2,7 +2,7 @@
 
 > *Two plugins, one engine — Furaidē's shikigami for Claude Code.*
 
-Part of the [F.R.I.D.A.Y.](https://github.com/pratty010/F.R.I.D.A.Y) monorepo.
+Part of the [F.R.I.D.A.Y.](https://github.com/pratty010/Furaide) monorepo.
 
 ---
 
@@ -22,7 +22,7 @@ Both plugins share a single engine (`cli/`) installed by `scripts/bootstrap.sh`.
 ### 1. Clone and bootstrap
 
 ```bash
-git clone https://github.com/pratty010/F.R.I.D.A.Y.git ~/F.R.I.D.A.Y
+git clone https://github.com/pratty010/Furaide.git ~/F.R.I.D.A.Y
 bash ~/F.R.I.D.A.Y/claude-code/scripts/bootstrap.sh
 ```
 
@@ -35,7 +35,7 @@ The bootstrap script:
 ### 2. Register and install plugins in Claude Code
 
 ```
-/plugin marketplace add pratty010/F.R.I.D.A.Y
+/plugin marketplace add pratty010/Furaide
 /plugin install mekiki@5h1nch4n
 /plugin install hanko@5h1nch4n
 /reload-plugins
@@ -156,4 +156,4 @@ plugins/
 
 ## Part of F.R.I.D.A.Y.
 
-The full collection lives at [pratty010/F.R.I.D.A.Y](https://github.com/pratty010/F.R.I.D.A.Y). Other components: `opencode/` (34-agent fleet), `common/` (shared skills + docs), `pi-agent/`, `openclaw/`.
+The full collection lives at [pratty010/Furaide](https://github.com/pratty010/Furaide). Other components: `opencode/` (34-agent fleet), `common/` (shared skills + docs), `pi-agent/`, `openclaw/`.

@@ -2,12 +2,12 @@
 
 > *"Twenty-five spirits, four gate-guardians, and one fox. The Fleet is ready."*
 
-Furaidē's [OpenCode](https://opencode.ai) configuration: a multi-agent fleet of named shikigami specialists, four gate plugins enforcing workflow integrity, and Kitsune's brand-builder domain (opt-in, in development). Part of the [F.R.I.D.A.Y.](https://github.com/pratty010/F.R.I.D.A.Y) collection.
+Furaidē's [OpenCode](https://opencode.ai) configuration: a multi-agent fleet of named shikigami specialists, four gate plugins enforcing workflow integrity, and Kitsune's brand-builder domain (opt-in, in development). Part of the [F.R.I.D.A.Y.](https://github.com/pratty010/Furaide) collection.
 
 There is no marketplace — the installer IS the distribution. One command clones and installs:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/pratty010/F.R.I.D.A.Y/main/opencode/scripts/install-fleet-bootstrap.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/pratty010/Furaide/main/opencode/scripts/install-fleet-bootstrap.sh)
 ```
 
 Or if you already have the repo:
@@ -133,4 +133,4 @@ bun test scripts/tests/
 
 ## Part of F.R.I.D.A.Y.
 
-This config is one of Furaidē's domains. The full collection lives at [pratty010/F.R.I.D.A.Y](https://github.com/pratty010/F.R.I.D.A.Y).
+This config is one of Furaidē's domains. The full collection lives at [pratty010/Furaide](https://github.com/pratty010/Furaide).
