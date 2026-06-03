@@ -53,8 +53,8 @@
     },
     {
       "id": "agents-core",
-      "label": "Specialist Agents (25 core)",
-      "description": "25 specialist and subagent shikigami. Soft dependency on failover routing-manifest.json and docs/models/** for model selection.",
+      "label": "Specialist Agents (29 core)",
+      "description": "29 specialist and subagent shikigami (12 specialists + 15 subagents + 2 escape-hatch). Soft dependency on failover routing-manifest.json and docs/models/** for model selection.",
       "atomic": false,
       "coupling": "soft dep on failover routing-manifest.json; auto-included at same scope if failover not selected there",
       "requires_bun": false,
@@ -85,7 +85,11 @@
         "agents/tsukuyomi.md",
         "agents/yamabiko.md",
         "agents/yumemi.md",
-        "agents/hanko.md"
+        "agents/hanko.md",
+        "agents/sojobō.md",
+        "agents/shiranui.md",
+        "agents/planner.md",
+        "agents/mizuchi.md"
       ],
       "globs": []
     },
