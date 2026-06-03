@@ -1,0 +1,14 @@
+{
+  "name": "friday",
+  "displayName": "F.R.I.D.A.Y.",
+  "description": "Furaidē's dark theme — deep indigo with warm amber accents",
+  "colors": {
+    "background": "#0d0d1a",
+    "foreground": "#e8e8f0",
+    "accent": "#f5a623",
+    "secondary": "#6c7aad",
+    "success": "#4caf7d",
+    "warning": "#f5a623",
+    "error": "#e05c5c"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "friday-furaidee",
+  "version": "0.1.0",
+  "description": "Furaidē's Pi agent package — web-RAG tools, TUI widgets, themes, and skills for pi.dev",
+  "keywords": ["pi-package", "pi-agent", "furaidee", "friday"],
+  "pi": {
+    "extensions": ["src/index.ts"],
+    "themes": ["themes/friday.json", "themes/chimu.json"]
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-core": "*"
+  }
+}

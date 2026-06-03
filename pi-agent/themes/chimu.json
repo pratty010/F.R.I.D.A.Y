@@ -1,0 +1,14 @@
+{
+  "name": "chimu",
+  "displayName": "Chimu",
+  "description": "Minimalist light theme — warm ivory with deep charcoal type",
+  "colors": {
+    "background": "#faf8f5",
+    "foreground": "#2c2c2c",
+    "accent": "#c0392b",
+    "secondary": "#7f8c8d",
+    "success": "#27ae60",
+    "warning": "#e67e22",
+    "error": "#c0392b"
+  }
+}
