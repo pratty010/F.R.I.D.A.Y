@@ -2,18 +2,13 @@
   "name": "fr1d4y",
   "owner": { "name": "pratty010", "email": "pratyushp010@gmail.com" },
   "metadata": {
-    "description": "Furaidē's shikigami for Claude Code — skill analytics (Mekiki) and git workflow (Hanko)."
+    "description": "Furaidē's shikigami for Claude Code — skill analytics (Mekiki) and git workflows via the github skill."
   },
   "plugins": [
     {
       "name": "mekiki",
       "source": "./claude-code/plugins/mekiki",
       "description": "Mekiki (目利き — 'appraiser'): captures every skill invocation and judges its effectiveness offline via the mekiki analytics engine."
-    },
-    {
-      "name": "hanko",
-      "source": "./claude-code/plugins/hanko",
-      "description": "Hanko (判子 — 'signing seal'): spawns a Haiku subagent for git commits, pushes, PR creation, and CI monitoring with human-in-the-loop approval."
     }
   ]
 }
