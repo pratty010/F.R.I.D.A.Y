@@ -72,3 +72,26 @@ def test_skill_invocation_has_ts():
     invs = list(transcript.iter_skill_invocations(FIXTURES / "transcript_with_attribution.jsonl"))
     assert len(invs) == 1
     assert invs[0].ts == "2026-06-01T10:00:01.000Z"
+
+def test_derive_downstream_used_respects_next_invocation_bound():
+    """Attribution for a skill invocation must not bleed into the next same-skill invocation."""
+    from mekiki.transcript import Turn, SkillInvocation, derive_downstream_used
+    turns = [
+        Turn(turn_index=0, uuid="u0", parent_uuid=None, role="user", timestamp="", text="", raw={}),
+        Turn(turn_index=1, uuid="a1", parent_uuid=None, role="assistant", timestamp="", text="", raw={}),
+        Turn(turn_index=2, uuid="u1", parent_uuid=None, role="user", timestamp="", text="", raw={}),
+        Turn(turn_index=3, uuid="a2", parent_uuid=None, role="assistant", timestamp="",
+             text="", raw={"attributionSkill": "brainstorming"}),
+        Turn(turn_index=4, uuid="u2", parent_uuid=None, role="user", timestamp="", text="", raw={}),
+        Turn(turn_index=5, uuid="a3", parent_uuid=None, role="assistant", timestamp="", text="", raw={}),
+        Turn(turn_index=6, uuid="u3", parent_uuid=None, role="user", timestamp="", text="", raw={}),
+        Turn(turn_index=7, uuid="a4", parent_uuid=None, role="assistant", timestamp="",
+             text="", raw={"attributionSkill": "brainstorming"}),
+    ]
+    invocations = [
+        SkillInvocation(turn_index=1, tool_use_id="id1", skill="brainstorming", args=""),
+        SkillInvocation(turn_index=5, tool_use_id="id2", skill="brainstorming", args=""),
+    ]
+    result = derive_downstream_used(invocations, turns)
+    assert result["id1"] is True   # turn 3 attributionSkill=brainstorming, before turn 5 bound
+    assert result["id2"] is True   # turn 7 attributionSkill=brainstorming, no upper bound

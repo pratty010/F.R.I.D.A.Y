@@ -1,5 +1,6 @@
 import json
 import re
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, Optional
@@ -151,11 +152,19 @@ def turn_bounded_window(turns: list[Turn], target_turn_index: int) -> list[Turn]
 
     # Find start: last human message with turn_index <= target
     start_idx = 0
+    found_human_before_target = False
     for i, t in enumerate(sorted_turns):
         if t.turn_index > target_turn_index:
             break
         if _is_human_msg(t):
             start_idx = i
+            found_human_before_target = True
+
+    if not found_human_before_target:
+        for i, t in enumerate(sorted_turns):
+            if t.turn_index == target_turn_index:
+                start_idx = i
+                break
 
     # Find end: first human message with turn_index > target (exclusive)
     end_idx = len(sorted_turns)
@@ -177,7 +186,6 @@ def derive_downstream_used(
     appears after the invocation turn_index and before the next invocation of the same skill.
     """
     # Build per-skill sorted invocation turn indices for bounding
-    from collections import defaultdict
     skill_turn_indices: dict[str, list[int]] = defaultdict(list)
     for inv in invocations:
         skill_turn_indices[inv.skill].append(inv.turn_index)
