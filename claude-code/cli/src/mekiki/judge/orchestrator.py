@@ -4,7 +4,6 @@ from pathlib import Path
 from mekiki import db, transcript
 from mekiki.judge import context
 from mekiki.judge.interface import JudgeBackend, AvailableSkillCtx
-from mekiki import config as config_mod
 
 
 def _unjudged_invocations(conn) -> list[int]:
