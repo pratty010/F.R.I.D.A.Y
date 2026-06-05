@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol, Optional
 
 @dataclass
@@ -14,17 +14,18 @@ class InvocationContext:
     args: str
     trigger: str                      # 'user-typed' | 'model'
     turn_index: int
-    context_before: list[str]         # flattened role-prefixed text
+    context_before: list[str]
     context_after: list[str]
 
 @dataclass
 class Judgment:
-    used_downstream: Optional[bool]
     user_reaction: str                # 'positive' | 'negative' | 'neutral' | 'none'
     user_reaction_quote: str
-    session_ended_cleanly: Optional[bool]
     notes: str
     judgment_model: str
+    score: float = 0.0                # G-Eval normalized 0-1
+    used_downstream: Optional[bool] = None      # set by ingest from attributionSkill
+    session_ended_cleanly: Optional[bool] = None  # set by ingest from stop_hook_summary
 
 @dataclass
 class Gap:
@@ -36,7 +37,7 @@ class JudgeBackend(Protocol):
     def classify_invocation(self, ctx: InvocationContext) -> Judgment: ...
     def detect_gap(self, prompt: str, available_skills: list[AvailableSkillCtx]) -> Optional[Gap]: ...
 
-def get_backend(name: str) -> JudgeBackend:
+def get_backend(name: str) -> "JudgeBackend":
     if name == "anthropic":
         from mekiki.judge.anthropic_backend import AnthropicBackend
         return AnthropicBackend()

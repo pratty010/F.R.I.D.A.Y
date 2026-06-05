@@ -276,15 +276,15 @@
     },
 
     "hanko": {
-      "label": "Hanko (plugin-native)",
-      "description": "Installed automatically when the Hanko plugin is active. No manual install needed.",
-      "install_target": "plugin",
+      "label": "Hanko (common/vendor)",
+      "description": "Installed via common/install-common.sh --global. Executed by the hanko--git-seal subagent.",
+      "install_target": "common",
       "ecosystem": ["claude-code"],
       "skills": [
         {
           "name": "github",
           "source": "friday",
-          "description": "GitHub Workflow Executor — spawns Haiku subagent for git commits, pushes, PR creation, and CI monitoring with human-in-the-loop approval. Ships with the Hanko plugin."
+          "description": "GitHub workflow recipes — the six standard F.R.I.D.A.Y. git/GitHub workflows. Installed via common/install-common.sh; executed by the hanko--git-seal subagent."
         }
       ]
     },
