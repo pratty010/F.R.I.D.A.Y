@@ -6,6 +6,7 @@ from mekiki.judge import context
 from mekiki.judge.interface import JudgeBackend, AvailableSkillCtx
 from mekiki import config as config_mod
 
+
 def _unjudged_invocations(conn) -> list[int]:
     rows = conn.execute(
         "SELECT id FROM skill_invocations si "
@@ -14,8 +15,14 @@ def _unjudged_invocations(conn) -> list[int]:
     ).fetchall()
     return [r["id"] for r in rows]
 
+
 def judge_invocations(backend: JudgeBackend, reanalyze_skill: str | None = None) -> int:
-    cfg = config_mod.load().judge
+    """Judge all unjudged invocations.
+
+    used_downstream and session_ended_cleanly are read from skill_invocations/sessions
+    (set by ingest from transcript data — no LLM needed for these fields).
+    The LLM scores user_reaction and the G-Eval score only.
+    """
     db.init()
     conn = db.connect()
     judged = 0
@@ -32,19 +39,37 @@ def judge_invocations(backend: JudgeBackend, reanalyze_skill: str | None = None)
         ids = _unjudged_invocations(conn)
         for inv_id in ids:
             try:
+                # Read transcript-derivable facts from DB (no LLM)
+                inv_row = conn.execute(
+                    "SELECT si.used_downstream, s.ended_cleanly "
+                    "FROM skill_invocations si "
+                    "JOIN sessions s ON s.session_id = si.session_id "
+                    "WHERE si.id = ?",
+                    (inv_id,),
+                ).fetchone()
+                used_dn = inv_row["used_downstream"] if inv_row else None
+                ended_cleanly = inv_row["ended_cleanly"] if inv_row else None
+
+                # LLM judge for user_reaction + G-Eval score
                 ctx = context.build(inv_id)
                 j = backend.classify_invocation(ctx)
+
                 now = datetime.now(timezone.utc).isoformat()
                 conn.execute(
-                    "INSERT INTO invocation_judgments(invocation_id, used_downstream, user_reaction, "
-                    "user_reaction_quote, session_ended_cleanly, judgment_model, judged_at, notes) "
-                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO invocation_judgments"
+                    "(invocation_id, used_downstream, user_reaction, "
+                    "user_reaction_quote, session_ended_cleanly, score, judgment_model, judged_at, notes) "
+                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         inv_id,
-                        None if j.used_downstream is None else (1 if j.used_downstream else 0),
-                        j.user_reaction, j.user_reaction_quote,
-                        None if j.session_ended_cleanly is None else (1 if j.session_ended_cleanly else 0),
-                        j.judgment_model, now, j.notes,
+                        used_dn,
+                        j.user_reaction,
+                        j.user_reaction_quote,
+                        ended_cleanly,
+                        j.score,
+                        j.judgment_model,
+                        now,
+                        j.notes,
                     ),
                 )
                 conn.commit()
@@ -55,6 +80,7 @@ def judge_invocations(backend: JudgeBackend, reanalyze_skill: str | None = None)
     finally:
         conn.close()
     return judged
+
 
 def detect_gaps(backend: JudgeBackend, sample_rate: float = 1.0) -> int:
     db.init()
