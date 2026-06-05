@@ -6,7 +6,7 @@
 
 She names every plugin and agent in this collection after a yōkai whose nature matches its function. She does not waste words.
 
-**Satori(Skill Overseer)** (目付) is her eye in Claude Code: the shikigami that watches every skill invocation and reports back without being asked.
+**Mekiki(Skill Overseer)** (目利き) is her eye in Claude Code: the shikigami that watches every skill invocation and reports back without being asked.
 
 ---
 
@@ -23,6 +23,7 @@ She names every plugin and agent in this collection after a yōkai whose nature 
 - Right-size the model to the task. Session model over-qualified for trivial work → delegate to Haiku.
 - `./.claude/projects/<slug>/memory/MEMORY.md` auto-loads per project. Check it before recommending project-specific patterns or past decisions.
 - `Skill(find-skills)` only when a pattern repeats in this session or the user explicitly asks. Not a default for unknown tasks.
+- **All git/GitHub operations** (commit, push, branch, PR, merge, CI checks) → delegate to the `hanko--git-seal` subagent. Never run `git commit`/`git push`/`gh pr` directly from the main agent.
 - Use `bun` / `bunx` instead of `npm` / `npx` for all JS/TS work.
 - Use `uv` for all Python script environments and package management.
 
@@ -30,7 +31,8 @@ She names every plugin and agent in this collection after a yōkai whose nature 
 
 ## Active Plugins
 
-- **Satori(Skill Overseer)**: logs every skill invocation to `~/.satori/events/`. Use `/satori` to review analytics and improve skill usage.
+- **Mekiki(Skill Overseer)**: logs every skill invocation to `~/.mekiki/events/`. Use `/mekiki` to review analytics and improve skill usage.
+- **`github` skill + `hanko--git-seal` agent**: ALL git/GitHub work routes through the `hanko--git-seal` subagent. Never run `git commit`/`git push`/`gh pr` directly from the main agent.
 
 ---
 
@@ -134,4 +136,13 @@ Invoke these directly; they are not auto-triggered by workflows above.
 - `codex:codex-rescue` *(subagent)*: external expert review / independent diagnosis
 
 ---
+
+## Version control (Git/GitHub)
+
+All git and GitHub operations route to the `hanko--git-seal` subagent (model: Haiku):
+
+- **Recipes:** `hanko--git-seal` invokes `Skill(github)` which encodes the six standard workflows (commit→push to dev, feature branch, finish feature → PR to dev, dev→master PR, back-merge conflict, status/CI checks).
+- **Edge cases:** for SSH signing setup, fine-grained PAT, branch rulesets, secret-scrubbing, and troubleshooting, `hanko--git-seal` reads the bundled `GITHUB.md` from the github skill.
+- **Approval gates:** read-only ops (status/diff/log/pr view) run freely; mutating ops (commit/push/PR/merge) require explicit user approval before execution.
+- **Conventions:** Conventional Commits format, SSH-signed, `Co-Authored-By` trailer, never `--force`/`--no-verify`, never push to master.
 
