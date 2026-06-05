@@ -1,4 +1,5 @@
 import { test, expect } from 'bun:test';
+import { readFileSync, existsSync } from 'node:fs';
 import { AGENT_RENAME_MAP, LEGACY_AGENT_ALIASES, ALL_AGENT_TARGETS } from '../lib/agent-fleet-map.mjs';
 
 test('rename map covers all 38 agents with unique current and target names', () => {
@@ -17,4 +18,18 @@ test('legacy alias map points to renamed targets', () => {
   expect(LEGACY_AGENT_ALIASES['explorer']).toBe('mikoshi--code-pathfinder');
   expect(LEGACY_AGENT_ALIASES['source-retriever']).toBe('yamabiko--source-echo');
   expect(LEGACY_AGENT_ALIASES['technical-writer']).toBe('makimono--docs-scribe');
+});
+
+test('all renamed agent files exist and no old filenames remain', () => {
+  for (const entry of AGENT_RENAME_MAP) {
+    expect(existsSync(`agents/${entry.next}.md`), `missing agents/${entry.next}.md`).toBe(true);
+    expect(existsSync(`agents/${entry.current}.md`), `stale agents/${entry.current}.md still exists`).toBe(false);
+  }
+});
+
+test('no agent file uses invalid mode: agent', () => {
+  for (const entry of AGENT_RENAME_MAP) {
+    const body = readFileSync(`agents/${entry.next}.md`, 'utf8');
+    expect(body.includes('mode: agent'), `agents/${entry.next}.md still uses mode: agent`).toBe(false);
+  }
 });
