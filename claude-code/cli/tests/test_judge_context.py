@@ -23,8 +23,17 @@ def test_build_context_around_invocation(mekiki_home):
     ).fetchone()["id"]
     conn.close()
 
-    ic = ctxmod.build(inv_id, before=2, after=0)
+    ic = ctxmod.build(inv_id)
     assert ic.skill == "brainstorming"
     assert ic.turn_index == 3
-    assert len(ic.context_before) == 2
+    assert len(ic.context_before) >= 1
     assert "use brainstorming" in ic.context_before[-1]
+
+
+def test_build_uses_turn_bounded_window(mekiki_home):
+    """context.build() must use turn_bounded_window, not window_around."""
+    import inspect
+    from mekiki.judge import context
+    src = inspect.getsource(context)
+    assert "turn_bounded_window" in src, "context.py must use turn_bounded_window"
+    assert "window_around" not in src, "context.py must not call window_around"

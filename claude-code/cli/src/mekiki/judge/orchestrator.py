@@ -32,7 +32,7 @@ def judge_invocations(backend: JudgeBackend, reanalyze_skill: str | None = None)
         ids = _unjudged_invocations(conn)
         for inv_id in ids:
             try:
-                ctx = context.build(inv_id, before=cfg.context_window_messages, after=cfg.context_window_messages)
+                ctx = context.build(inv_id)
                 j = backend.classify_invocation(ctx)
                 now = datetime.now(timezone.utc).isoformat()
                 conn.execute(
