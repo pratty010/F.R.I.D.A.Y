@@ -1,5 +1,7 @@
 # Agent Fleet Structural Findings
 
+- Review rubric: `docs/agent-description-rubric.md`
+
 ## Inventory
 
 | File | Mode | Model | Description | Mentions | Task Targets |
