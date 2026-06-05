@@ -60,7 +60,7 @@ status: ok
 result_id: er_...
 summary: "<mode, site_recommended, site_job if applicable, key alignment issues, confidence>"
 provenance: [er_..., rule:brand, ...]
-followups: ["kodama", "migaki"]
+followups: ["@kodama--growth-echo", "@migaki--profile-polisher"]
 ```
 
 ## Builder Boundary

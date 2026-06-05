@@ -100,7 +100,7 @@
         "opencode-go/deepseek-v4-pro",
         "opencode-go/glm-5"
       ],
-      "_note": "migration + codemod orchestrator; phased plans with rollback; dispatches tsukumo for execution"
+      "_note": "migration + codemod orchestrator; phased plans with rollback; dispatches tsukumogami--code-forgemaster for execution"
     },
     "chizu--implementation-planner": {
       "primary": "opencode-go/kimi-k2.5",
@@ -109,7 +109,7 @@
         "opencode-go/qwen3.6-plus",
         "opencode-go/glm-5"
       ],
-      "_note": "implementation planner; executor-ready plans for tsukumo; no architecture decisions"
+      "_note": "implementation-planning role; executor-ready plans for tsukumogami--code-forgemaster; no architecture decisions"
     }
   },
   "subagents": {
@@ -252,10 +252,10 @@
         "opencode-go/minimax-m2.7",
         "google-vertex/gemini-3.1-flash-lite"
       ],
-      "_note": "data architect leaf; dispatched by soroban for schema/dbt/ETL work"
+      "_note": "data architect leaf; dispatched by soroban--number-sage for schema/dbt/ETL work"
     }
   },
   "_notes": {
-    "brand_subagents_deferred": "akashi, amanojaku, hyakume, kataribe, kodama, kudagitsune, kurabokko, migaki: intentionally omitted from subagents until the brand-builder bundle stabilizes"
+    "brand_subagents_deferred": "akashi--proof-keeper, amanojaku--voice-contrarian, hyakume--ats-watchman, kataribe--narrative-teller, kodama--growth-echo, kudagitsune--fit-diviner, kurabokko--knowledge-keeper, migaki--profile-polisher: intentionally omitted from subagents until the brand-builder bundle stabilizes"
   }
 }

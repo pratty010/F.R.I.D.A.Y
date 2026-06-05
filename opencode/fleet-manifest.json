@@ -107,9 +107,9 @@
     {
       "id": "agent-scripts",
       "label": "Agent Support Scripts",
-      "description": "Verification and safety scripts called by agents via karakuri (code runner). No hard coupling.",
+      "description": "Verification and safety scripts called by agents via karakuri--command-runner (code runner). No hard coupling.",
       "atomic": false,
-      "coupling": "none (agents call via karakuri subagent)",
+      "coupling": "none (agents call via karakuri--command-runner subagent)",
       "requires_bun": false,
       "default_on": true,
       "target_subdirs": [

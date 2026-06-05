@@ -11,7 +11,7 @@ permission:
   websearch: deny
   task:
     "*": deny
-    formatter: allow
+    henge--format-shifter: allow
   question: deny
   todowrite: allow
   skill:
@@ -47,7 +47,7 @@ Required fields from the dispatching specialist:
 3. Map the input data to visual elements: nodes, edges, axes, cells, or sections.
 4. Apply constraints: honor color palette and brand tokens; flag any constraint that cannot be satisfied.
 5. Generate the visual artifact.
-6. For HTML output exceeding 10 sections or requiring interactive toggles, dispatch formatter for final rendering; otherwise use html-preview directly.
+6. For HTML output exceeding 10 sections or requiring interactive toggles, dispatch henge--format-shifter for final rendering; otherwise use html-preview directly.
 7. Validate output: SVG must be valid XML; HTML must have no unclosed tags; Mermaid must parse without errors.
 8. Return artifact and Design Notes.
 </workflow>

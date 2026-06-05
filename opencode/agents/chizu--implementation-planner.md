@@ -4,9 +4,9 @@ description: >
   Planner(Implementation Planner): Turns a goal into an executor-ready plan with exact
   file paths, exact code changes, exact verification commands — no judgment calls left
   to the implementer. Route here for multi-file changes (3+ files) with ripple effects,
-  uncertain approaches, or before delegating implementation to tsukumo.
-  NOT for single-file trivial edits; NOT for architecture decisions (sojobō); NOT for
-  code writing (tsukumo).
+  uncertain approaches, or before delegating implementation to tsukumogami--code-forgemaster.
+  NOT for single-file trivial edits; NOT for architecture decisions (sojobo--system-strategist); NOT for
+  code writing (tsukumogami--code-forgemaster).
 mode: all
 model: opencode-go/kimi-k2.5
 temperature: 0.5
@@ -17,12 +17,11 @@ permission:
   websearch: deny
   task:
     "*": deny
-    explorer: allow
-    mikoshi: allow
+    mikoshi--code-pathfinder: allow
   question: deny
   todowrite: allow
   skill:
     "*": deny
 ---
 
-{file:../common/agents/planner/core.md}
+{file:../common/agents/chizu--implementation-planner/core.md}

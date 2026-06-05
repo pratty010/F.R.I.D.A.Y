@@ -10,7 +10,7 @@ permission:
   websearch: allow
   task:
     "*": deny
-    extractor: allow
+    azukiarai--data-sifter: allow
   question: deny
   todowrite: allow
   skill:
@@ -45,7 +45,7 @@ Required fields from the dispatching specialist:
 3. Run websearch for each query. Collect candidate URLs and titles.
 4. For each high-signal candidate: use webfetch to retrieve the page. Extract title, organization/author, publication date, and the key data point(s) relevant to the brief.
 5. Score each source: credibility (primary/secondary/tertiary), recency, and relevance to brief scope.
-6. If the result set exceeds 20 candidates, dispatch extractor with the raw list to pull structured fields at scale; merge returned rows into the manifest.
+6. If the result set exceeds 20 candidates, dispatch azukiarai--data-sifter with the raw list to pull structured fields at scale; merge returned rows into the manifest.
 7. Deduplicate by URL. Drop sources that are paywalled with no extractable metadata and mark the gap.
 8. Assign sequential IDs (S001, S002, …).
 9. Return the Source Manifest and Gaps list.

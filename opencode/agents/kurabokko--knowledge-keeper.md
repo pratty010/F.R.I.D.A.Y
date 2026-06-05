@@ -55,7 +55,7 @@ status: ok
 result_id: av_...
 summary: "<accepted artifact type, version number, update type detected, stale evidence count if any, conflicts if any>"
 provenance: [av_..., rule:intake, ...]
-followups: ["kudagitsune", "awase"]
+followups: ["@kudagitsune--fit-diviner", "awase"]
 ```
 
 ## Constraints

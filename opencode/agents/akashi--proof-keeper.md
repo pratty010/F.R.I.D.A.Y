@@ -58,7 +58,7 @@ status: ok
 result_id: er_...
 summary: "<repos evaluated, disposition distribution, top proof gaps, key next-project idea, confidence>"
 provenance: [er_..., rule:github_proof, ...]
-followups: ["kataribe", "kodama"]
+followups: ["@kataribe--narrative-teller", "@kodama--growth-echo"]
 ```
 
 ## Evaluation Order

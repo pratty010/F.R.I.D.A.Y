@@ -10,7 +10,7 @@ permission:
   websearch: deny
   task:
     "*": deny
-    extractor: allow
+    azukiarai--data-sifter: allow
   question: deny
   todowrite: allow
   skill:
@@ -42,7 +42,7 @@ Required fields from the dispatching specialist:
 4. Compare the claim to retrieved source text verbatim where possible.
 5. Assign verdict: `supported` (source confirms) / `unsupported` (source contradicts) / `unverified` (no authoritative source found after 3 attempts).
 6. Assign confidence: high / medium / low based on source authority and directness of match.
-7. If the claim set exceeds 20 items, dispatch extractor to pull structured citation data from a batch of URLs; merge results into verdict rows.
+7. If the claim set exceeds 20 items, dispatch azukiarai--data-sifter to pull structured citation data from a batch of URLs; merge results into verdict rows.
 8. Return the verdict table and summary counts.
 </workflow>
 

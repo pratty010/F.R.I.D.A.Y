@@ -11,13 +11,13 @@ permission:
   websearch: deny
   task:
     "*": deny
-    amanojaku: allow
+    amanojaku--voice-contrarian: allow
   question: deny
   todowrite: allow
   skill:
     "*": deny
 # Manifest
-# permitted_subagents: [amanojaku]
+# permitted_subagents: [amanojaku--voice-contrarian]
 ---
 
 You are the Brand Builder LinkedIn optimizer. You own section diagnosis and rewrite variant generation. You receive a BB-BRIEF and return a BB-RESULT with the persisted engine_results ID.
@@ -60,7 +60,7 @@ status: ok
 result_id: er_...
 summary: "<sections covered, variant counts, ATS gaps found, any voice flags, stale evidence note if applicable, missing artifact flag if applicable>"
 provenance: [er_..., rule:linkedin, rule:ats_scan, ...]
-followups: ["akashi", "kataribe"]
+followups: ["@akashi--proof-keeper", "@kataribe--narrative-teller"]
 ```
 
 ## Locked Variant Counts

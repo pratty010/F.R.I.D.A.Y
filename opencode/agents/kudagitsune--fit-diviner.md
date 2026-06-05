@@ -44,7 +44,7 @@ status: ok
 result_id: snap_...
 summary: "<narration: scores, dominant failure mode, top improvement, confidence level>"
 provenance: [ev_..., rule:assess, ...]
-followups: ["awase", "kurabokko"]
+followups: ["awase", "@kurabokko--knowledge-keeper"]
 ```
 
 ## Role-Fit Assessment
@@ -64,7 +64,7 @@ status: ok
 result_id: er_...
 summary: "<blocker-first narration: fit score, bracket, blockers, easy wins, confidence>"
 provenance: [ev_..., rule:role_fit, ...]
-followups: ["migaki", "kudagitsune"]
+followups: ["@migaki--profile-polisher", "@kudagitsune--fit-diviner"]
 ```
 
 ## Constraints

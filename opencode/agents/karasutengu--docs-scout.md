@@ -40,6 +40,6 @@ Apply keep-vs-drop evaluation before returning:
 - Return documentation excerpts, usage examples, official links, and version notes only.
 - NEVER edit files or write state.
 - NEVER design or recommend architecture — return the docs, let the caller decide.
-- If the question requires architectural guidance: return "needs-clarification: architectural decisions belong with @sojobō or @tsukuyomi."
+- If the question requires architectural guidance: return "needs-clarification: architectural decisions belong with @sojobo--system-strategist or @tsukuyomi--spec-oracle."
 - If a library version is unspecified and multiple versions exist with breaking differences, ask which version before searching.
 </constraints>
