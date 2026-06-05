@@ -16,7 +16,8 @@ permission:
   task:
     "*": deny
     mikoshi--code-pathfinder: allow
-    tsukumogami--code-forgemaster: allow
+    karakuri--command-runner: allow
+    tanuki--codemod-runner: allow
   question: deny
   todowrite: allow
   skill:

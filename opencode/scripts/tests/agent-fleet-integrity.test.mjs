@@ -2,15 +2,15 @@ import { test, expect } from 'bun:test';
 import { readFileSync, existsSync } from 'node:fs';
 import { AGENT_RENAME_MAP, LEGACY_AGENT_ALIASES, ALL_AGENT_TARGETS } from '../lib/agent-fleet-map.mjs';
 
-test('rename map covers all 38 agents with unique current and target names', () => {
-  expect(AGENT_RENAME_MAP).toHaveLength(38);
+test('rename map covers all 39 agents with unique current and target names', () => {
+  expect(AGENT_RENAME_MAP).toHaveLength(39);
 
   const current = new Set(AGENT_RENAME_MAP.map(entry => entry.current));
   const target = new Set(AGENT_RENAME_MAP.map(entry => entry.next));
 
-  expect(current.size).toBe(38);
-  expect(target.size).toBe(38);
-  expect(ALL_AGENT_TARGETS).toHaveLength(38);
+  expect(current.size).toBe(39);
+  expect(target.size).toBe(39);
+  expect(ALL_AGENT_TARGETS).toHaveLength(39);
 });
 
 test('legacy alias map points to renamed targets', () => {

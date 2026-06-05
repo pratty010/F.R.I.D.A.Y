@@ -62,8 +62,8 @@
     },
     {
       "id": "agents-core",
-      "label": "Specialist Agents (29 core)",
-      "description": "29 specialist and subagent shikigami (12 specialists + 15 subagents + 2 escape-hatch). Soft dependency on failover routing-manifest.json and docs/models/** for model selection.",
+      "label": "Specialist Agents (30 core)",
+      "description": "30 specialist and subagent shikigami (12 specialists + 16 subagents + 2 escape-hatch). Soft dependency on failover routing-manifest.json and docs/models/** for model selection.",
       "atomic": false,
       "coupling": "soft dep on failover routing-manifest.json; auto-included at same scope if failover not selected there",
       "requires_bun": false,
@@ -90,6 +90,7 @@
         "agents/oni--red-team-reviewer.md",
         "agents/soroban--number-sage.md",
         "agents/tanuki--general-trickster.md",
+        "agents/tanuki--codemod-runner.md",
         "agents/tengu--visual-artisan.md",
         "agents/tsuchigumo--research-weaver.md",
         "agents/tsukumogami--code-forgemaster.md",

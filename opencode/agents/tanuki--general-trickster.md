@@ -3,7 +3,7 @@ name: tanuki--general-trickster
 description: >
   General Trickster: Cost-aware broad research and Q&A escape hatch for tasks that don't fit any v9.1 specialist.
   Use for: open-ended questions, cross-domain lookups, multi-file codebase context exploration, quick research when no specialist clearly matches.
-  Not for: anything that fits a v9.1 specialist (tsukuyomi--spec-oracle, tsuchigumo--research-weaver, daikoku--finance-steward, enma--compliance-judge, fudo--security-guardian, tsukumogami--code-forgemaster, daidarabotchi--infra-shaper, yumemi--story-smith, mujina--brand-shapeshifter, sojobo--system-strategist, shiranui--migration-guide, chizu--implementation-planner) — if one fits, surface the routing and stop.
+  Not for: anything that fits a v9.1 specialist (see the `specialists` section of `docs/routing-manifest.json` for the canonical list) — if one fits, surface the routing and stop.
   Behavior: cheap, broad-coverage research; summarizes findings with citations or [unverified] tags; never edits files, runs bash, or writes state files; defaults to the cheapest capable path.
 mode: all
 model: opencode/big-pickle

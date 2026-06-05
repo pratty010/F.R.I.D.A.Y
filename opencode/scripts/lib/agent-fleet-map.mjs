@@ -37,6 +37,7 @@ export const AGENT_RENAME_MAP = [
   { current: 'kudagitsune', next: 'kudagitsune--fit-diviner', group: 'other' },
   { current: 'kurabokko', next: 'kurabokko--knowledge-keeper', group: 'other' },
   { current: 'migaki', next: 'migaki--profile-polisher', group: 'other' },
+  { current: 'kappa', next: 'tanuki--codemod-runner', group: 'subagent' },
 ];
 
 export const LEGACY_AGENT_ALIASES = {
