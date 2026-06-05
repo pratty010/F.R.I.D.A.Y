@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-# Furaidē statusline — 3-line, outer-pinned, width-adaptive (reads $COLUMNS).
+# Furaidē statusline — 2-line, outer-pinned, width-adaptive (reads $COLUMNS).
 # Requires: jq. Claude Code v2.1.153+ exports COLUMNS/LINES and re-runs on resize.
 #
 # Line 1  L: 🧠 <model> │ <effort>          R: [⚠ ]CTX: [bar] used/window
-# Line 2  L: 📁 path (branch) │ ↑in/↓out    R: 5hr:[bar]% (reset) │ 1wk:[bar]% (reset)  OR  $: cost
-# Line 3  L: [pmode] PR#N state             (printed only when non-empty)
+# Line 2  L: 📁 path (branch) │ ↑in/↓out    R: 5hr: % (reset) │ 1wk: % (reset) │ $cost  OR  $: cost
 #
 # Env: STATUSLINE_GLYPHS=emoji|nerd|text   (default emoji)
 
@@ -23,14 +22,17 @@ _jq_int() { echo "$input" | jq -r "${1} // 0" 2>/dev/null | cut -d. -f1; }
 
 # ── width / format helpers ─────────────────────────────────────────────────
 ESC=$'\033'
-# NOTE: awk length counts bytes, not display columns. Multi-byte chars (emoji, block
-# glyphs) are over-counted, producing extra padding rather than overflow — safe failure.
-_vlen() { printf '%s' "$1" | sed "s/${ESC}\[[0-9;]*m//g" | awk '{print length}'; }
+_vlen() {
+  printf '%s' "$1" \
+  | sed "s/${ESC}\[[0-9;]*m//g" \
+  | sed -e 's/🧠/##/g' -e 's/📁/##/g' -e 's/[│█░↑↓…⚠]/X/g' \
+  | awk '{print length}'
+}
 _trunc() {
-  local s="$1" n="$2" v
+  local s="$1" n="$2" v vlen
   v=$(printf '%s' "$s" | sed "s/${ESC}\[[0-9;]*m//g")
-  if [ "${#v}" -le "$n" ]; then printf '%s' "$s"
-  # Truncation strips ANSI color from the sliced prefix; RST appended for safety.
+  vlen=$(_vlen "$v")
+  if [ "$vlen" -le "$n" ]; then printf '%s' "$s"
   else printf '%s…%s' "${v:0:$((n-1))}" "$RST"; fi
 }
 _human() {
@@ -40,14 +42,16 @@ _human() {
   else printf '%d' "$n"; fi
 }
 _until() {
-  local t="$1" secs now diff h m
+  local t="$1" secs now diff d h m
   [ -z "$t" ] && return
   if printf '%s' "$t" | grep -qE '^[0-9]+$'; then secs="$t"
   else secs=$(date -d "$t" +%s 2>/dev/null || echo ""); fi
   [ -z "$secs" ] && return
   now=$(date +%s); diff=$(( secs - now )); [ "$diff" -lt 0 ] && diff=0
-  h=$(( diff/3600 )); m=$(( (diff%3600)/60 ))
-  if [ "$h" -gt 0 ]; then printf '%dh%dm' "$h" "$m"; else printf '%dm' "$m"; fi
+  d=$(( diff/86400 )); h=$(( (diff%86400)/3600 )); m=$(( (diff%3600)/60 ))
+  if   [ "$d" -gt 0 ]; then printf '%dd%dh' "$d" "$h"
+  elif [ "$h" -gt 0 ]; then printf '%dh%dm' "$h" "$m"
+  else printf '%dm' "$m"; fi
 }
 _bar() {  # pct width
   local pct="$1" w="$2" f e i out=""
@@ -115,8 +119,11 @@ DIR=$(_jq '.workspace.current_dir // .cwd')
 RAWDIR="$DIR"
 case "$DIR" in "$HOME"*) DIR="~${DIR#$HOME}" ;; esac
 DIR=$(_pathshort "$DIR")
-WT=$(_jq '.workspace.git_worktree'); BRANCH="$WT"
-[ -z "$BRANCH" ] && [ -n "$RAWDIR" ] && BRANCH=$(git -C "$RAWDIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+BRANCH=""
+[ -n "$RAWDIR" ] && BRANCH=$(git -C "$RAWDIR" branch --show-current 2>/dev/null \
+  || git -C "$RAWDIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+WT=$(_jq '.workspace.git_worktree')
+[ -z "$BRANCH" ] && BRANCH="$WT"
 case "$GLYPHS" in emoji) DG="📁 " ;; nerd) DG=$' ' ;; *) DG="" ;; esac
 L2L="${DG}${BOLD}${DIR}${RST}"
 [ -n "$BRANCH" ] && L2L+=" ${YLW}(${BRANCH})${RST}"
@@ -126,42 +133,19 @@ L2L+=" ${DIM}│${RST} ${GRN}↑$(_human "$IN")${RST}/${BLU}↓$(_human "$OUT")$
 
 # ── Line 2 RIGHT: rate limits (subscriber) OR cost (credit) ────────────────
 HAS_RL=$(_jq '.rate_limits')
+COST=$(_jq '.cost.total_cost_usd // empty')
+[ -n "$COST" ] && COST=$(echo "$COST" | awk '{printf "%.2f",$1}')
 if [ -n "$HAS_RL" ]; then
   R5=$(_jq '.rate_limits.five_hour.used_percentage' | cut -d. -f1); R5=${R5:-0}
   R7=$(_jq '.rate_limits.seven_day.used_percentage' | cut -d. -f1); R7=${R7:-0}
-  if [ "$USABLE" -lt 72 ]; then
-    L2R="${DIM}5hr:${RST}${R5}%"
-  else
-    T5=$(_until "$(_jq '.rate_limits.five_hour.resets_at')")
-    T7=$(_until "$(_jq '.rate_limits.seven_day.resets_at')")
-    L2R="${DIM}5hr:${RST}[$(_bar "$R5" 4)]${R5}%"; [ -n "$T5" ] && L2R+=" (${T5})"
-    L2R+=" ${DIM}│${RST} ${DIM}1wk:${RST}[$(_bar "$R7" 4)]${R7}%"; [ -n "$T7" ] && L2R+=" (${T7})"
-  fi
+  T5=$(_until "$(_jq '.rate_limits.five_hour.resets_at')")
+  T7=$(_until "$(_jq '.rate_limits.seven_day.resets_at')")
+  L2R="${DIM}5hr:${RST} ${R5}%"; [ -n "$T5" ] && L2R+=" (${T5})"
+  L2R+=" ${DIM}│${RST} ${DIM}1wk:${RST} ${R7}%"; [ -n "$T7" ] && L2R+=" (${T7})"
+  L2R+=" ${DIM}│${RST} ${DIM}\$:${RST} ${COST:-0.00}"
 else
-  COST=$(_jq '.cost.total_cost_usd // "0"' | awk '{printf "%.2f",$1}')
-  L2R="${DIM}\$:${RST} ${COST}"
+  L2R="${DIM}\$:${RST} ${COST:-0.00}"
 fi
 _lr "$L2L" "$L2R"
 
-# ── Line 3 (optional): permission mode + PR ────────────────────────────────
-SIDECAR="${MEKIKI_HOME:-$HOME/.mekiki}/statusline-sidecar.json"
-PMODE=""; [ -f "$SIDECAR" ] && PMODE=$(jq -r '.permission_mode // empty' "$SIDECAR" 2>/dev/null || true)
-PB=""
-case "$PMODE" in
-  bypassPermissions) PB="${RED}[bypass]${RST}" ;;
-  acceptEdits)       PB="${YLW}[edits]${RST}" ;;
-  plan)              PB="${CYN}[plan]${RST}" ;;
-  dontAsk)           PB="${YLW}[dontAsk]${RST}" ;;
-esac
-PR_NUM=$(_jq '.pr.number'); PR_STATE=$(_jq '.pr.review_state'); PRB=""
-if [ -n "$PR_NUM" ]; then
-  case "$PR_STATE" in
-    approved) PC="$GRN" ;; changes_requested) PC="$RED" ;; draft) PC="$DIM" ;; *) PC="$YLW" ;;
-  esac
-  PRB="${PC}PR#${PR_NUM}${PR_STATE:+ $PR_STATE}${RST}"
-fi
-L3=""
-[ -n "$PB" ]  && L3="$PB"
-[ -n "$PRB" ] && L3="${L3:+$L3  }$PRB"
-[ -n "$L3" ] && printf '%s\n' "$L3"
 exit 0

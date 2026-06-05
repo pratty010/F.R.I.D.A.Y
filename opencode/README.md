@@ -149,6 +149,57 @@ bun test scripts/tests/
 
 ---
 
+## Uninstall
+
+The OpenCode uninstaller removes OpenCode-owned shikigami files, gate plugins, and configs. It can also clean up shared `common/` skills used across harnesses.
+
+```bash
+bash opencode/scripts/uninstall-fleet.sh
+```
+
+### Flags
+
+| Flag | Effect |
+|------|--------|
+| `--dry-run` | Print planned deletions and config edits without making any filesystem writes. |
+| `--purge` | Non-interactive mode; auto-approves deletions across detected active scopes. |
+| `--global` | Run uninstall on global scope (`~/.config/opencode/`). |
+| `--project` | Run uninstall on project-local scope (`./.opencode/`). |
+| `--custom <dir>` | Run uninstall on a custom absolute directory. |
+| `--include-shared-skills` | Directly remove shared `common/` skills without prompting. |
+
+---
+
+## Experimental `dev` Branch
+
+For testing upcoming features on the `dev` branch:
+
+### 1. Clone and Install
+Check out the `dev` branch and run the installer in symlink mode:
+
+```bash
+git clone -b dev https://github.com/pratty010/Furaide.git ~/furaide-dev
+cd ~/furaide-dev/opencode
+bash scripts/install-fleet.sh --project --link
+```
+
+Using `--link` symlinks configuration files to your checked-out repository instead of copying them, allowing you to test modifications instantly.
+
+Alternatively, run the remote bootstrap installer pointing to the `dev` branch:
+
+```bash
+FURAIDE_BRANCH=dev bash <(curl -fsSL https://raw.githubusercontent.com/pratty010/Furaide/dev/opencode/scripts/install-fleet-bootstrap.sh)
+```
+
+### 2. Running Tests
+Verify the fleet configuration and scripts:
+
+```bash
+bun test scripts/tests/
+```
+
+---
+
 ## Part of F.R.I.D.A.Y.
 
 This config is one of Furaidē's domains. The full collection lives at [pratty010/Furaide](https://github.com/pratty010/Furaide).
