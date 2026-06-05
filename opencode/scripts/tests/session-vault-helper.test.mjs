@@ -1,5 +1,5 @@
 import { test, expect } from 'bun:test';
-import { classifySearch, selectVisibleSessions } from '../session-vault.mjs';
+import { archiveSession, classifySearch, markDeleted, selectVisibleSessions } from '../session-vault.mjs';
 
 const FIXTURE = {
   sessions: [
@@ -16,4 +16,15 @@ test('classifySearch filters by title and workspace', () => {
   const result = classifySearch(FIXTURE.sessions, 'installer');
   expect(result).toHaveLength(1);
   expect(result[0].id).toBe('ses_1');
+});
+
+test('archiveSession marks session archived and adds archive path', () => {
+  const next = archiveSession(FIXTURE, 'ses_1', '/tmp/archive/ses_1.json');
+  expect(next.sessions.find(session => session.id === 'ses_1')?.status).toBe('archived');
+  expect(next.sessions.find(session => session.id === 'ses_1')?.archive_path).toBe('/tmp/archive/ses_1.json');
+});
+
+test('markDeleted marks session deleted without removing record', () => {
+  const next = markDeleted(FIXTURE, 'ses_2');
+  expect(next.sessions.find(session => session.id === 'ses_2')?.status).toBe('deleted');
 });
