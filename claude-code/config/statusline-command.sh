@@ -1,139 +1,163 @@
 #!/usr/bin/env bash
-# Satori statusline — 2-line layout with left/right split
-# Requires: jq (https://jqlang.github.io/jq/)
+# Furaidē statusline — 3-line, outer-pinned, width-adaptive (reads $COLUMNS).
+# Requires: jq. Claude Code v2.1.153+ exports COLUMNS/LINES and re-runs on resize.
 #
-# Line 1  LEFT : [Model]  repo (branch)
-#          RIGHT: effort:X  PR#N state  @agent  [pmode]
-# Line 2  LEFT : [context bar] %
-#          RIGHT: $cost  +add/-rem  5h:X%  7d:X%  /last-skill
+# Line 1  L: 🧠 <model> │ <effort>          R: [⚠ ]CTX: [bar] used/window
+# Line 2  L: 📁 path (branch) │ ↑in/↓out    R: 5hr:[bar]% (reset) │ 1wk:[bar]% (reset)  OR  $: cost
+# Line 3  L: [pmode] PR#N state             (printed only when non-empty)
+#
+# Env: STATUSLINE_GLYPHS=emoji|nerd|text   (default emoji)
 
 set -euo pipefail
 input=$(cat)
 
-# ── ANSI ─────────────────────────────────────────────────────────────────
+# ── ANSI ──────────────────────────────────────────────────────────────────
 RST=$'\033[0m'; BOLD=$'\033[1m'; DIM=$'\033[2m'
 RED=$'\033[31m'; GRN=$'\033[32m'; YLW=$'\033[33m'
-BLU=$'\033[34m'; MAG=$'\033[35m'; CYN=$'\033[36m'
-BYLW=$'\033[93m'
+BLU=$'\033[34m'; MAG=$'\033[35m'; CYN=$'\033[36m'; BYLW=$'\033[93m'
+GLYPHS="${STATUSLINE_GLYPHS:-emoji}"
 
-# ── Helpers ───────────────────────────────────────────────────────────────
+# ── jq helpers ─────────────────────────────────────────────────────────────
 _jq()     { echo "$input" | jq -r "${1} // empty" 2>/dev/null || true; }
-_jq_int() { echo "$input" | jq -r "${1} // 0"     2>/dev/null | cut -d. -f1; }
+_jq_int() { echo "$input" | jq -r "${1} // 0" 2>/dev/null | cut -d. -f1; }
 
-# Strip ANSI escapes to measure visible width
+# ── width / format helpers ─────────────────────────────────────────────────
 ESC=$'\033'
-_vlen() { printf '%s' "$1" | sed "s/${ESC}\[[0-9;]*m//g" | awk '{print length($0)}'; }
+_vlen() { printf '%s' "$1" | sed "s/${ESC}\[[0-9;]*m//g" | awk '{print length}'; }
+_trunc() {
+  local s="$1" n="$2" v
+  v=$(printf '%s' "$s" | sed "s/${ESC}\[[0-9;]*m//g")
+  if [ "${#v}" -le "$n" ]; then printf '%s' "$s"
+  else printf '%s…%s' "${v:0:$((n-1))}" "$RST"; fi
+}
+_human() {
+  local n="${1:-0}"
+  if   [ "$n" -ge 1000000 ]; then awk -v x="$n" 'BEGIN{printf "%.1fM", x/1000000}'
+  elif [ "$n" -ge 1000 ];    then awk -v x="$n" 'BEGIN{printf "%dk", int(x/1000)}'
+  else printf '%d' "$n"; fi
+}
+_until() {
+  local t="$1" secs now diff h m
+  [ -z "$t" ] && return
+  if printf '%s' "$t" | grep -qE '^[0-9]+$'; then secs="$t"
+  else secs=$(date -d "$t" +%s 2>/dev/null || echo ""); fi
+  [ -z "$secs" ] && return
+  now=$(date +%s); diff=$(( secs - now )); [ "$diff" -lt 0 ] && diff=0
+  h=$(( diff/3600 )); m=$(( (diff%3600)/60 ))
+  if [ "$h" -gt 0 ]; then printf '%dh%dm' "$h" "$m"; else printf '%dm' "$m"; fi
+}
+_bar() {  # pct width
+  local pct="$1" w="$2" f e i out=""
+  f=$(( pct * w / 100 )); [ "$f" -gt "$w" ] && f=$w; [ "$f" -lt 0 ] && f=0
+  e=$(( w - f ))
+  for ((i=0;i<f;i++)); do out="${out}█"; done
+  for ((i=0;i<e;i++)); do out="${out}░"; done
+  printf '%s' "$out"
+}
+_pathshort() {  # collapse long path to <first>/…/<basename>
+  local p="$1" max="${2:-28}"
+  [ "${#p}" -le "$max" ] && { printf '%s' "$p"; return; }
+  printf '%s/…/%s' "${p%%/*}" "$(basename "$p")"
+}
 
-# Build a line with LEFT flush-left, RIGHT flush-right, padded to $COLUMNS
-_lr() {
-  local left="$1" right="$2" cols="${COLUMNS:-80}"
-  local pad=$(( cols - $(_vlen "$left") - $(_vlen "$right") ))
-  [ "$pad" -lt 1 ] && pad=1
+COLS="${COLUMNS:-80}"; MARGIN=3; USABLE=$(( COLS - MARGIN ))
+[ "$USABLE" -lt 20 ] && USABLE=20
+
+_lr() {  # left right -> pinned corners, truncate inner edges (RIGHT keeps priority)
+  local left="$1" right="$2" ll rl
+  ll=$(_vlen "$left"); rl=$(_vlen "$right")
+  if [ $(( ll + rl + 1 )) -gt "$USABLE" ]; then
+    local maxleft=$(( USABLE - rl - 1 )); [ "$maxleft" -lt 4 ] && maxleft=4
+    left=$(_trunc "$left" "$maxleft"); ll=$(_vlen "$left")
+    if [ $(( ll + rl + 1 )) -gt "$USABLE" ]; then
+      right=$(_trunc "$right" $(( USABLE - ll - 1 ))); rl=$(_vlen "$right")
+    fi
+  fi
+  local pad=$(( USABLE - ll - rl )); [ "$pad" -lt 1 ] && pad=1
   printf '%s%*s%s\n' "$left" "$pad" '' "$right"
 }
 
-# ── Model / session ───────────────────────────────────────────────────────
-MODEL=$(_jq '.model.display_name')
-EFFORT=$(_jq '.effort.level')
-AGENT=$(_jq  '.agent.name')
-
-# ── Workspace ─────────────────────────────────────────────────────────────
-REPO=$(_jq '.workspace.repo.name')
-DIR=$(_jq  '.workspace.current_dir // .cwd')
-WORKTREE=$(_jq '.workspace.git_worktree')
-BRANCH=""
-if [ -n "$WORKTREE" ]; then
-  BRANCH="$WORKTREE"
-elif [ -n "$DIR" ]; then
-  BRANCH=$(git -C "$DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-fi
-
-# ── PR ────────────────────────────────────────────────────────────────────
-PR_NUM=$(_jq '.pr.number')
-PR_STATE=$(_jq '.pr.review_state')
-
-# ── Context window ────────────────────────────────────────────────────────
-CTX_PCT=$(_jq_int '.context_window.used_percentage')
-CTX_PCT=${CTX_PCT:-0}
-EXCEEDS=$(_jq '.exceeds_200k_tokens')
-
-BAR_W=14
-FILLED=$(( CTX_PCT * BAR_W / 100 ))
-EMPTY=$(( BAR_W - FILLED ))
-BAR=""
-for ((i=0; i<FILLED; i++)); do BAR="${BAR}█"; done
-for ((i=0; i<EMPTY;  i++)); do BAR="${BAR}░"; done
-
-if   [ "$EXCEEDS" = "true" ] || [ "$CTX_PCT" -ge 90 ]; then BAR_C="$RED"
-elif [ "$CTX_PCT" -ge 70 ];                              then BAR_C="$YLW"
-elif [ "$CTX_PCT" -ge 50 ];                              then BAR_C="$BYLW"
-else                                                          BAR_C="$GRN"
-fi
-
-# ── Cost / velocity ───────────────────────────────────────────────────────
-COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0' 2>/dev/null \
-       | awk '{printf "%.2f", $1}')
-LADD=$(_jq_int '.cost.total_lines_added')
-LREM=$(_jq_int '.cost.total_lines_removed')
-
-# ── Rate limits ───────────────────────────────────────────────────────────
-RATE5=$(_jq '.rate_limits.five_hour.used_percentage  // empty' | cut -d. -f1)
-RATE7=$(_jq '.rate_limits.seven_day.used_percentage  // empty' | cut -d. -f1)
-
-# ── Sidecar (written by hooks) ────────────────────────────────────────────
-SIDECAR="${MEKIKI_HOME:-$HOME/.mekiki}/statusline-sidecar.json"
-PMODE=""; LAST_SKILL=""
-if [ -f "$SIDECAR" ]; then
-  PMODE=$(jq -r      '.permission_mode // empty' "$SIDECAR" 2>/dev/null || true)
-  LAST_SKILL=$(jq -r '.last_skill      // empty' "$SIDECAR" 2>/dev/null || true)
-fi
-
-# ── Badges ────────────────────────────────────────────────────────────────
-PR_BADGE=""
-if [ -n "$PR_NUM" ]; then
-  case "${PR_STATE:-}" in
-    approved)          PC="$GRN"  ;;
-    changes_requested) PC="$RED"  ;;
-    draft)             PC="$DIM"  ;;
-    *)                 PC="$YLW"  ;;
-  esac
-  PR_BADGE="${PC}PR#${PR_NUM}$([ -n "$PR_STATE" ] && printf ' %s' "$PR_STATE")${RST}"
-fi
-
-PMODE_BADGE=""
-case "${PMODE:-}" in
-  bypassPermissions) PMODE_BADGE="${RED}[bypass]${RST}"  ;;
-  acceptEdits)       PMODE_BADGE="${YLW}[edits]${RST}"   ;;
-  plan)              PMODE_BADGE="${CYN}[plan]${RST}"    ;;
-  dontAsk)           PMODE_BADGE="${YLW}[dontAsk]${RST}" ;;
+# ── Line 1 LEFT: model │ effort ────────────────────────────────────────────
+MODEL=$(_jq '.model.display_name'); [ -z "$MODEL" ] && MODEL="?"
+case "$MODEL" in
+  *Opus*)   MC="$MAG" ;; *Sonnet*) MC="$BLU" ;; *Haiku*) MC="$GRN" ;; *) MC="$BOLD" ;;
 esac
+case "$GLYPHS" in emoji) MG="🧠 " ;; nerd) MG=$' ' ;; *) MG="" ;; esac
+L1L="${BOLD}${MC}${MG}${MODEL}${RST}"
+EFFORT=$(_jq '.effort.level')
+if [ -n "$EFFORT" ]; then
+  case "$EFFORT" in
+    low) EC="$DIM" ;; medium) EC="$CYN" ;; high) EC="$YLW" ;;
+    xhigh) EC="$BYLW" ;; max) EC="$RED" ;; *) EC="$DIM" ;;
+  esac
+  L1L+=" ${DIM}│${RST} ${EC}${EFFORT}${RST}"
+fi
 
-# ── Line 1 ────────────────────────────────────────────────────────────────
-# LEFT: identity — what project, which model
-L1L="${BOLD}${MAG}[${MODEL:-?}]${RST}"
-[ -n "$REPO"   ] && L1L+="  ${BOLD}${BLU}${REPO}${RST}"
-[ -n "$BRANCH" ] && L1L+=" ${YLW}(${BRANCH})${RST}"
-
-# RIGHT: session state — how you're working, any gates
-L1R=""
-[ -n "$EFFORT"      ] && L1R+="${DIM}effort:${EFFORT}${RST}"
-[ -n "$PR_BADGE"    ] && L1R+="${L1R:+  }${PR_BADGE}"
-[ -n "$AGENT"       ] && L1R+="${L1R:+  }${MAG}@${AGENT}${RST}"
-[ -n "$PMODE_BADGE" ] && L1R+="${L1R:+  }${PMODE_BADGE}"
-
+# ── Line 1 RIGHT: context ──────────────────────────────────────────────────
+CTX_PCT=$(_jq_int '.context_window.used_percentage'); CTX_PCT=${CTX_PCT:-0}
+USED=$(_jq_int '.context_window.total_input_tokens')
+WIN=$(_jq_int '.context_window.context_window_size')
+EXCEEDS=$(_jq '.exceeds_200k_tokens')
+if   [ "$EXCEEDS" = "true" ] || [ "$CTX_PCT" -ge 90 ]; then BC="$RED"
+elif [ "$CTX_PCT" -ge 70 ]; then BC="$YLW"
+elif [ "$CTX_PCT" -ge 50 ]; then BC="$BYLW"
+else BC="$GRN"; fi
+WARN=""; [ "$EXCEEDS" = "true" ] && WARN="${RED}⚠ ${RST}"
+L1R="${WARN}${DIM}CTX:${RST} ${BC}[$(_bar "$CTX_PCT" 10)]${RST} ${DIM}$(_human "$USED")/$(_human "$WIN")${RST}"
 _lr "$L1L" "$L1R"
 
-# ── Line 2 ────────────────────────────────────────────────────────────────
-# LEFT: context pressure — the single most actionable number
-L2L="${BAR_C}[${BAR}]${RST} ${CTX_PCT}%"
+# ── Line 2 LEFT: path (branch) │ ↑in/↓out ──────────────────────────────────
+DIR=$(_jq '.workspace.current_dir // .cwd')
+RAWDIR="$DIR"
+case "$DIR" in "$HOME"*) DIR="~${DIR#$HOME}" ;; esac
+DIR=$(_pathshort "$DIR")
+WT=$(_jq '.workspace.git_worktree'); BRANCH="$WT"
+[ -z "$BRANCH" ] && [ -n "$RAWDIR" ] && BRANCH=$(git -C "$RAWDIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+case "$GLYPHS" in emoji) DG="📁 " ;; nerd) DG=$' ' ;; *) DG="" ;; esac
+L2L="${DG}${BOLD}${DIR}${RST}"
+[ -n "$BRANCH" ] && L2L+=" ${YLW}(${BRANCH})${RST}"
+IN=$(_jq_int '.context_window.total_input_tokens')
+OUT=$(_jq_int '.context_window.total_output_tokens')
+L2L+=" ${DIM}│${RST} ${GRN}↑$(_human "$IN")${RST}/${BLU}↓$(_human "$OUT")${RST}"
 
-# RIGHT: cost, velocity, rate limits, last skill
-L2R="${DIM}\$${COST}${RST}"
-if [ "${LADD:-0}" -gt 0 ] || [ "${LREM:-0}" -gt 0 ]; then
-  L2R+="  ${GRN}+${LADD:-0}${RST}/${RED}-${LREM:-0}${RST}"
+# ── Line 2 RIGHT: rate limits (subscriber) OR cost (credit) ────────────────
+HAS_RL=$(_jq '.rate_limits')
+if [ -n "$HAS_RL" ]; then
+  R5=$(_jq '.rate_limits.five_hour.used_percentage' | cut -d. -f1); R5=${R5:-0}
+  R7=$(_jq '.rate_limits.seven_day.used_percentage' | cut -d. -f1); R7=${R7:-0}
+  if [ "$USABLE" -lt 72 ]; then
+    L2R="${DIM}5hr:${RST}${R5}%"
+  else
+    T5=$(_until "$(_jq '.rate_limits.five_hour.resets_at')")
+    T7=$(_until "$(_jq '.rate_limits.seven_day.resets_at')")
+    L2R="${DIM}5hr:${RST}[$(_bar "$R5" 4)]${R5}%"; [ -n "$T5" ] && L2R+=" (${T5})"
+    L2R+=" ${DIM}│${RST} ${DIM}1wk:${RST}[$(_bar "$R7" 4)]${R7}%"; [ -n "$T7" ] && L2R+=" (${T7})"
+  fi
+else
+  COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0' 2>/dev/null | awk '{printf "%.2f",$1}')
+  L2R="${DIM}\$:${RST} ${COST}"
 fi
-[ -n "$RATE5"      ] && L2R+="  ${DIM}5h:${RATE5}%${RST}"
-[ -n "$RATE7"      ] && L2R+="  ${DIM}7d:${RATE7}%${RST}"
-[ -n "$LAST_SKILL" ] && L2R+="  ${DIM}/${LAST_SKILL}${RST}"
-
 _lr "$L2L" "$L2R"
+
+# ── Line 3 (optional): permission mode + PR ────────────────────────────────
+SIDECAR="${MEKIKI_HOME:-$HOME/.mekiki}/statusline-sidecar.json"
+PMODE=""; [ -f "$SIDECAR" ] && PMODE=$(jq -r '.permission_mode // empty' "$SIDECAR" 2>/dev/null || true)
+PB=""
+case "$PMODE" in
+  bypassPermissions) PB="${RED}[bypass]${RST}" ;;
+  acceptEdits)       PB="${YLW}[edits]${RST}" ;;
+  plan)              PB="${CYN}[plan]${RST}" ;;
+  dontAsk)           PB="${YLW}[dontAsk]${RST}" ;;
+esac
+PR_NUM=$(_jq '.pr.number'); PR_STATE=$(_jq '.pr.review_state'); PRB=""
+if [ -n "$PR_NUM" ]; then
+  case "$PR_STATE" in
+    approved) PC="$GRN" ;; changes_requested) PC="$RED" ;; draft) PC="$DIM" ;; *) PC="$YLW" ;;
+  esac
+  PRB="${PC}PR#${PR_NUM}${PR_STATE:+ $PR_STATE}${RST}"
+fi
+L3=""
+[ -n "$PB" ]  && L3="$PB"
+[ -n "$PRB" ] && L3="${L3:+$L3  }$PRB"
+[ -n "$L3" ] && printf '%s\n' "$L3"
+exit 0
