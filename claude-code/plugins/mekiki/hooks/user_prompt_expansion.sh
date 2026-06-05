@@ -12,13 +12,23 @@ if [ -z "$COMMAND" ]; then
   exit 0
 fi
 
-LINE="$(printf '%s' "$PAYLOAD" | jq -c --arg ts "$TS" --arg cmd "$COMMAND" '{
-  ts: $ts,
-  platform: "claude-code",
-  event: "skill.user_typed",
-  session_id: .session_id,
-  skill: $cmd,
-  transcript_path: .transcript_path
-}')"
+EFFORT="$(printf '%s' "$PAYLOAD" | jq -r '.effort.level // ""')"
+CMD_SOURCE="$(printf '%s' "$PAYLOAD" | jq -r '.command_source // ""')"
+
+LINE="$(printf '%s' "$PAYLOAD" | jq -c \
+  --arg ts "$TS" \
+  --arg cmd "$COMMAND" \
+  --arg eff "$EFFORT" \
+  --arg src "$CMD_SOURCE" \
+  '{
+    ts: $ts,
+    platform: "claude-code",
+    event: "skill.user_typed",
+    session_id: .session_id,
+    skill: $cmd,
+    effort_level: $eff,
+    command_source: $src,
+    transcript_path: .transcript_path
+  }')"
 
 "$SCRIPT_DIR/_emit.sh" "$LINE"
